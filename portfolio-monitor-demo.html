@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solo PM Workflow · Claude + Morningstar + Aiera + Egnyte</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --bg2: #141820;
+      --bg3: #0d1117;
+      --border: #1e2536;
+      --border2: #2d3a52;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --blue: #63b3ed;
+      --blue2: #3b82f6;
+      --green: #68d391;
+      --yellow: #f6e05e;
+      --red: #fc8181;
+      --purple: #b794f4;
+      --orange: #f6ad55;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-logo { font-weight: 700; font-size: 15px; color: var(--text); }
+    .nav-logo span { color: var(--blue); }
+    .nav-pills { display: flex; gap: 6px; }
+    .nav-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text3);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-pill:hover, .nav-pill.active {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(99,179,237,0.08);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 32px 64px;
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,179,237,0.08);
+      border: 1px solid rgba(99,179,237,0.2);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800;
+      color: #f7fafc;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue); }
+    .hero p {
+      font-size: 18px;
+      color: var(--text2);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .mcp-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+    .mcp-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .mcp-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-ms { background: #f97316; }
+    .dot-ai { background: #a78bfa; }
+    .dot-eg { background: #34d399; }
+    .hero-loop {
+      display: inline-flex;
+      align-items: center;
+      gap: 32px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 28px;
+      font-size: 13px;
+      color: var(--text2);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .loop-step { display: flex; align-items: center; gap: 8px; }
+    .loop-icon { font-size: 18px; }
+    .loop-arrow { color: var(--border2); font-size: 18px; }
+
+    /* ── SECTION ── */
+    .section {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 64px 32px;
+      border-top: 1px solid var(--border);
+    }
+    .section-header { margin-bottom: 36px; }
+    .section-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+    .section-header h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f7fafc;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .section-header p { font-size: 15px; color: var(--text2); }
+
+    /* ── STEP LAYOUT ── */
+    .step-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .step-layout { grid-template-columns: 1fr; } }
+
+    /* ── CHAT BUBBLES ── */
+    .chat-window {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .chat-toolbar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text3);
+    }
+    .chat-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cd-red { background: #fc8181; }
+    .cd-yellow { background: var(--yellow); }
+    .cd-green { background: var(--green); }
+    .chat-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    .msg { display: flex; gap: 10px; align-items: flex-start; }
+    .msg.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .av-user { background: var(--blue2); color: #fff; }
+    .av-claude { background: linear-gradient(135deg, #f97316, #ec4899); color: #fff; }
+    .msg-bubble {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+    .msg.user .msg-bubble {
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--text);
+      border-top-right-radius: 4px;
+    }
+    .msg.claude .msg-bubble {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-top-left-radius: 4px;
+    }
+    .msg-bubble code {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.3);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--blue);
+    }
+    .msg-bubble strong { color: #f7fafc; }
+    .tool-call {
+      margin: 6px 0;
+      padding: 6px 10px;
+      background: rgba(167,139,250,0.08);
+      border-left: 2px solid var(--purple);
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: var(--purple);
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    /* ── OUTPUT CARDS ── */
+    .output-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .output-header {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .output-title { font-size: 13px; font-weight: 600; color: #f7fafc; }
+    .output-meta { font-size: 11px; color: var(--text3); }
+    .output-body { padding: 20px; }
+
+    /* Portfolio table */
+    .ptable { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ptable th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 0 10px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ptable td { padding: 10px; border-bottom: 1px solid rgba(30,37,54,0.6); color: var(--text2); }
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable td:first-child { font-weight: 600; color: var(--text); }
+    .up { color: var(--green); }
+    .dn { color: var(--red); }
+    .neutral { color: var(--text3); }
+    .stars { color: var(--yellow); }
+    .moat-wide { color: var(--green); font-size: 11px; font-weight: 600; }
+    .moat-narrow { color: var(--yellow); font-size: 11px; font-weight: 600; }
+    .moat-none { color: var(--red); font-size: 11px; font-weight: 600; }
+
+    /* Alert cards */
+    .alerts { display: flex; flex-direction: column; gap: 10px; }
+    .alert-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      align-items: flex-start;
+    }
+    .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .alert-content { flex: 1; }
+    .alert-title { font-size: 13px; font-weight: 600; color: #f7fafc; margin-bottom: 2px; }
+    .alert-body { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+    .alert-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .tag-earnings { background: rgba(246,224,94,0.12); color: var(--yellow); }
+    .tag-rating { background: rgba(99,179,237,0.12); color: var(--blue); }
+    .tag-news { background: rgba(167,139,250,0.12); color: var(--purple); }
+    .tag-action { background: rgba(104,211,145,0.12); color: var(--green); }
+
+    /* Rebalance */
+    .rebal-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .rebal-stat {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .rebal-num { font-size: 22px; font-weight: 700; color: #f7fafc; }
+    .rebal-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .trade-list { display: flex; flex-direction: column; gap: 8px; }
+    .trade-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .trade-ticker { font-weight: 700; color: #f7fafc; width: 60px; }
+    .trade-action {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .buy { background: rgba(104,211,145,0.12); color: var(--green); }
+    .sell { background: rgba(252,129,129,0.12); color: var(--red); }
+    .trade-reason { font-size: 12px; color: var(--text3); flex: 1; text-align: right; }
+
+    /* Report preview */
+    .report-preview {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+    .report-header-bar {
+      background: #1a365d;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .report-header-bar .firm { color: #fff; font-weight: 700; font-size: 14px; }
+    .report-header-bar .period { color: rgba(255,255,255,0.6); font-size: 12px; }
+    .report-content { padding: 20px 24px; }
+    .report-client { font-size: 13px; color: #4a5568; margin-bottom: 16px; }
+    .report-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .report-metric {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .report-metric .val { font-size: 20px; font-weight: 700; color: #1a202c; }
+    .report-metric .lbl { font-size: 11px; color: #718096; margin-top: 2px; }
+    .report-metric .val.pos { color: #276749; }
+    .report-metric .val.neg { color: #c53030; }
+    .report-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #718096;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .report-holdings { width: 100%; border-collapse: collapse; font-size: 12px; color: #2d3748; }
+    .report-holdings th { text-align: left; color: #718096; font-size: 11px; padding: 0 8px 6px; }
+    .report-holdings td { padding: 6px 8px; border-top: 1px solid #edf2f7; }
+    .report-holdings td:first-child { font-weight: 600; }
+    .pos-ret { color: #276749; font-weight: 600; }
+    .neg-ret { color: #c53030; font-weight: 600; }
+
+    /* ── HOW IT WORKS ── */
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      counter-reset: step;
+    }
+    .flow-step {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      counter-increment: step;
+    }
+    .flow-step::before {
+      content: counter(step);
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      width: 24px; height: 24px;
+      background: var(--blue2);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .flow-step h3 { font-size: 14px; font-weight: 600; color: #f7fafc; margin-bottom: 6px; margin-top: 4px; }
+    .flow-step p { font-size: 13px; color: var(--text2); }
+    .flow-step .source {
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+    }
+    .flow-step .source span { color: var(--blue); }
+
+    /* ── CTA ── */
+    .cta-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 32px;
+      text-align: center;
+    }
+    .cta-section h2 { font-size: 30px; font-weight: 700; color: #f7fafc; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .cta-section p { font-size: 16px; color: var(--text2); margin-bottom: 32px; }
+    .cta-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      text-align: left;
+    }
+    @media (max-width: 520px) { .cta-cards { grid-template-columns: 1fr; } }
+    .cta-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .cta-card h4 { font-size: 14px; font-weight: 600; color: #f7fafc; margin-bottom: 6px; }
+    .cta-card p { font-size: 13px; color: var(--text2); }
+    .cta-card code {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: block;
+      margin-top: 8px;
+      color: var(--green);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    /* ── TABS ── */
+    .tab-group { margin-bottom: 20px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .tab {
+      font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--text3);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tab.active { border-color: var(--blue); color: var(--blue); background: rgba(99,179,237,0.08); }
+
+    /* Divider */
+    .divider {
+      max-width: 980px; margin: 0 auto;
+      border: none; border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Claude <span>for Portfolio Managers</span></div>
+  <div class="nav-pills">
+    <a class="nav-pill active" href="#morning">Morning Scan</a>
+    <a class="nav-pill" href="#rebalance">Rebalance</a>
+    <a class="nav-pill" href="#report">Client Report</a>
+    <a class="nav-pill" href="#setup">Setup</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Solo Portfolio Manager Workflow</div>
+  <h1>Your research desk,<br><em>automated</em></h1>
+  <p>Three data integrations. One AI assistant. Everything a solo PM needs — from morning scan to client report — without juggling browser tabs.</p>
+
+  <div class="mcp-badges">
+    <div class="mcp-badge"><div class="mcp-dot dot-ms"></div>Morningstar · Ratings &amp; Valuations</div>
+    <div class="mcp-badge"><div class="mcp-dot dot-ai"></div>Aiera · Earnings Calls &amp; Events</div>
+    <div class="mcp-badge"><div class="mcp-dot dot-eg"></div>Egnyte · Documents &amp; Reports</div>
+  </div>
+
+  <div class="hero-loop">
+    <div class="loop-step"><span class="loop-icon">🌅</span> Morning scan</div>
+    <span class="loop-arrow">→</span>
+    <div class="loop-step"><span class="loop-icon">📊</span> Monitor positions</div>
+    <span class="loop-arrow">→</span>
+    <div class="loop-step"><span class="loop-icon">⚖️</span> Rebalance trades</div>
+    <span class="loop-arrow">→</span>
+    <div class="loop-step"><span class="loop-icon">📋</span> Client report</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     STEP 1 — MORNING SCAN
+══════════════════════════════════════════ -->
+<section class="section" id="morning">
+  <div class="section-header">
+    <div class="section-tag">Step 1 · Every morning</div>
+    <h2>Morning portfolio scan</h2>
+    <p>Ask Claude one question. It pulls live earnings alerts, ratings changes, and news flow across your entire book — all before your first coffee is finished.</p>
+  </div>
+
+  <div class="step-layout">
+    <!-- Chat -->
+    <div class="chat-window">
+      <div class="chat-toolbar">
+        <div class="chat-dot cd-red"></div>
+        <div class="chat-dot cd-yellow"></div>
+        <div class="chat-dot cd-green"></div>
+        <span style="margin-left:8px;">Claude · Portfolio Session</span>
+      </div>
+      <div class="chat-body">
+        <div class="msg user">
+          <div class="msg-avatar av-user">PM</div>
+          <div class="msg-bubble">Morning. What do I need to know about my book today? Holdings are MSFT, AAPL, JPM, JNJ, BRK.B, NEE, AMT.</div>
+        </div>
+        <div class="msg claude">
+          <div class="msg-avatar av-claude">C</div>
+          <div class="msg-bubble">
+            <div class="tool-call">↗ aiera.get_portfolio_events(tickers=["MSFT","AAPL","JPM","JNJ","BRK.B","NEE","AMT"])</div>
+            <div class="tool-call">↗ morningstar.get_ratings(tickers=["MSFT","AAPL","JPM","JNJ","BRK.B","NEE","AMT"])</div>
+            Good morning. Here's what's moving across your 7 positions:
+            <br><br>
+            <strong>🔴 Action needed</strong><br>
+            <strong>JPM</strong> reports Q2 earnings tomorrow pre-market. Consensus: $4.19 EPS, $42.1B revenue. Watch NII guidance — the key swing factor.<br><br>
+            <strong>🟡 Watch</strong><br>
+            <strong>NEE</strong> — Morningstar cut fair value estimate from $68 → $63 (rate sensitivity). Still 4-star. Consider sizing.<br>
+            <strong>AAPL</strong> — Services growth commentary from WWDC broadly positive, no rating change.<br><br>
+            <strong>🟢 No action</strong><br>
+            MSFT, JNJ, BRK.B, AMT — quiet overnight, ratings unchanged.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="output-card">
+      <div class="output-header">
+        <div class="output-title">Portfolio Snapshot · Today</div>
+        <div class="output-meta">via Morningstar + Aiera</div>
+      </div>
+      <div class="output-body">
+        <div class="alerts">
+          <div class="alert-item">
+            <div class="alert-icon">📣</div>
+            <div class="alert-content">
+              <div class="alert-title">JPM Q2 Earnings <span class="alert-tag tag-earnings">Earnings</span></div>
+              <div class="alert-body">Reports tomorrow pre-market. Consensus $4.19 EPS. NII guidance is the key catalyst — watch for commentary on deposit repricing.</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">⚡</div>
+            <div class="alert-content">
+              <div class="alert-title">NEE Fair Value Cut <span class="alert-tag tag-rating">Rating</span></div>
+              <div class="alert-body">Morningstar revised FV $68 → $63 on rising rate sensitivity. Still 4-star rated, but narrowing margin of safety.</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">📰</div>
+            <div class="alert-content">
+              <div class="alert-title">AAPL · WWDC Recap <span class="alert-tag tag-news">News</span></div>
+              <div class="alert-body">Services commentary broadly positive. AI features announced for iOS 19. No analyst rating changes overnight.</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">✅</div>
+            <div class="alert-content">
+              <div class="alert-title">MSFT · BRK.B · JNJ · AMT <span class="alert-tag tag-action">Clear</span></div>
+              <div class="alert-body">No material events, rating changes, or news flow. No action required.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STEP 2 — POSITION MONITOR
+══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">Step 2 · On demand</div>
+    <h2>Full book with Morningstar ratings</h2>
+    <p>Get a live ratings and valuation table across all positions — instantly know which names are overvalued, which have the widest moat, and where the market is mispricing risk.</p>
+  </div>
+
+  <div class="output-card">
+    <div class="output-header">
+      <div class="output-title">Holdings · Morningstar Ratings</div>
+      <div class="output-meta">Live via Morningstar MCP</div>
+    </div>
+    <div class="output-body">
+      <table class="ptable">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Stars</th>
+            <th>Fair Value</th>
+            <th>Price</th>
+            <th>P/FV</th>
+            <th>Moat</th>
+            <th>Uncertainty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MSFT</td>
+            <td class="stars">★★★</td>
+            <td>$420</td>
+            <td>$415</td>
+            <td class="neutral">99%</td>
+            <td><span class="moat-wide">Wide</span></td>
+            <td class="neutral">Medium</td>
+          </tr>
+          <tr>
+            <td>AAPL</td>
+            <td class="stars">★★★</td>
+            <td>$185</td>
+            <td>$191</td>
+            <td class="dn">103%</td>
+            <td><span class="moat-wide">Wide</span></td>
+            <td class="neutral">Medium</td>
+          </tr>
+          <tr>
+            <td>JPM</td>
+            <td class="stars">★★★★</td>
+            <td>$228</td>
+            <td>$204</td>
+            <td class="up">89%</td>
+            <td><span class="moat-narrow">Narrow</span></td>
+            <td class="neutral">Medium</td>
+          </tr>
+          <tr>
+            <td>JNJ</td>
+            <td class="stars">★★★★★</td>
+            <td>$185</td>
+            <td>$145</td>
+            <td class="up">78%</td>
+            <td><span class="moat-wide">Wide</span></td>
+            <td class="neutral">Medium</td>
+          </tr>
+          <tr>
+            <td>BRK.B</td>
+            <td class="stars">★★★★</td>
+            <td>$390</td>
+            <td>$368</td>
+            <td class="up">94%</td>
+            <td><span class="moat-wide">Wide</span></td>
+            <td class="neutral">Low</td>
+          </tr>
+          <tr>
+            <td>NEE</td>
+            <td class="stars">★★★★</td>
+            <td>$63</td>
+            <td>$57</td>
+            <td class="up">90%</td>
+            <td><span class="moat-narrow">Narrow</span></td>
+            <td class="neutral">High</td>
+          </tr>
+          <tr>
+            <td>AMT</td>
+            <td class="stars">★★★★★</td>
+            <td>$240</td>
+            <td>$188</td>
+            <td class="up">78%</td>
+            <td><span class="moat-wide">Wide</span></td>
+            <td class="neutral">Medium</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STEP 3 — REBALANCE
+══════════════════════════════════════════ -->
+<section class="section" id="rebalance">
+  <div class="section-header">
+    <div class="section-tag">Step 3 · Monthly or on trigger</div>
+    <h2>Rebalancing trades</h2>
+    <p>Claude analyzes drift against your target allocation, accounts for unrealized gains and wash sale windows, and outputs a prioritized trade list — not just which way, but why.</p>
+  </div>
+
+  <div class="step-layout">
+    <div class="chat-window">
+      <div class="chat-toolbar">
+        <div class="chat-dot cd-red"></div>
+        <div class="chat-dot cd-yellow"></div>
+        <div class="chat-dot cd-green"></div>
+        <span style="margin-left:8px;">Claude · Portfolio Session</span>
+      </div>
+      <div class="chat-body">
+        <div class="msg user">
+          <div class="msg-avatar av-user">PM</div>
+          <div class="msg-bubble">My target is 40% US equity, 20% international, 20% fixed income, 10% REITs, 10% cash. Run the rebalance. Account is taxable.</div>
+        </div>
+        <div class="msg claude">
+          <div class="msg-avatar av-claude">C</div>
+          <div class="msg-bubble">
+            <div class="tool-call">↗ morningstar.get_asset_class_breakdown(holdings=[...])</div>
+            Analyzed drift vs. targets. Current allocation has drifted — US equity is overweight by 7pp on MSFT/AAPL gains. Four trades to get back in band:
+            <br><br>
+            <strong>Tax note:</strong> AAPL trim has $8,400 embedded LT gain — will realize ~$1,260 in taxes at 15%. JNJ add offsets with no tax impact. Recommend pairing the AAPL sale with NEE or AMT harvesting if you want to stay tax-neutral.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-card">
+      <div class="output-header">
+        <div class="output-title">Rebalance · Trade List</div>
+        <div class="output-meta">Taxable account · Today</div>
+      </div>
+      <div class="output-body">
+        <div class="rebal-summary">
+          <div class="rebal-stat">
+            <div class="rebal-num" style="color:var(--red)">+7pp</div>
+            <div class="rebal-label">US Equity Overweight</div>
+          </div>
+          <div class="rebal-stat">
+            <div class="rebal-num" style="color:var(--yellow)">4</div>
+            <div class="rebal-label">Trades Needed</div>
+          </div>
+          <div class="rebal-stat">
+            <div class="rebal-num" style="color:var(--text2)">$1,260</div>
+            <div class="rebal-label">Est. Tax Impact</div>
+          </div>
+        </div>
+        <div class="trade-list">
+          <div class="trade-row">
+            <span class="trade-ticker">AAPL</span>
+            <span class="trade-action sell">TRIM</span>
+            <span class="trade-reason">−$12,000 · US equity overweight</span>
+          </div>
+          <div class="trade-row">
+            <span class="trade-ticker">MSFT</span>
+            <span class="trade-action sell">TRIM</span>
+            <span class="trade-reason">−$8,000 · US equity overweight</span>
+          </div>
+          <div class="trade-row">
+            <span class="trade-ticker">JNJ</span>
+            <span class="trade-action buy">ADD</span>
+            <span class="trade-reason">+$10,000 · 5-star, underweight</span>
+          </div>
+          <div class="trade-row">
+            <span class="trade-ticker">AGG</span>
+            <span class="trade-action buy">BUY</span>
+            <span class="trade-reason">+$10,000 · Fixed income underweight</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STEP 4 — CLIENT REPORT
+══════════════════════════════════════════ -->
+<section class="section" id="report">
+  <div class="section-header">
+    <div class="section-tag">Step 4 · Quarterly</div>
+    <h2>Client performance report</h2>
+    <p>Claude drafts a full client report, saves it to Egnyte, and keeps a version-controlled copy — ready to send without you writing a word.</p>
+  </div>
+
+  <div class="step-layout">
+    <div class="chat-window">
+      <div class="chat-toolbar">
+        <div class="chat-dot cd-red"></div>
+        <div class="chat-dot cd-yellow"></div>
+        <div class="chat-dot cd-green"></div>
+        <span style="margin-left:8px;">Claude · Portfolio Session</span>
+      </div>
+      <div class="chat-body">
+        <div class="msg user">
+          <div class="msg-avatar av-user">PM</div>
+          <div class="msg-bubble">Generate the Q2 client report for the Johnson account. Portfolio is up 6.2% QTD vs 5.1% benchmark. Save it to Egnyte under /clients/johnson/reports/.</div>
+        </div>
+        <div class="msg claude">
+          <div class="msg-avatar av-claude">C</div>
+          <div class="msg-bubble">
+            <div class="tool-call">↗ morningstar.get_performance_attribution(holdings=[...])</div>
+            <div class="tool-call">↗ egnyte.upload_file(path="/clients/johnson/reports/Q2-2025.pdf")</div>
+            Report drafted and saved to Egnyte. Here's the summary:
+            <br><br>
+            <strong>Johnson Account · Q2 2025</strong><br>
+            Portfolio: <strong class="up">+6.2%</strong> · Benchmark: +5.1% · Alpha: <strong class="up">+110 bps</strong><br><br>
+            Top contributors: JNJ (+180 bps), BRK.B (+140 bps)<br>
+            Top detractors: NEE (−40 bps on rate headwinds)<br><br>
+            Saved to <code>/clients/johnson/reports/Q2-2025.pdf</code>. Ready to send — want me to draft the cover email?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report preview -->
+    <div>
+      <div class="report-preview">
+        <div class="report-header-bar">
+          <span class="firm">Johnson Account</span>
+          <span class="period">Q2 2025 · Performance Report</span>
+        </div>
+        <div class="report-content">
+          <div class="report-client">Prepared by: Your Firm · Confidential</div>
+          <div class="report-metrics">
+            <div class="report-metric">
+              <div class="val pos">+6.2%</div>
+              <div class="lbl">Portfolio Return</div>
+            </div>
+            <div class="report-metric">
+              <div class="val" style="color:#2b6cb0;">+5.1%</div>
+              <div class="lbl">Benchmark</div>
+            </div>
+            <div class="report-metric">
+              <div class="val pos">+110 bps</div>
+              <div class="lbl">Alpha</div>
+            </div>
+          </div>
+          <div class="report-section-title">Top Holdings · Attribution</div>
+          <table class="report-holdings">
+            <thead>
+              <tr><th>Ticker</th><th>Weight</th><th>Return</th><th>Contribution</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>JNJ</td><td>14%</td><td class="pos-ret">+13.2%</td><td class="pos-ret">+180 bps</td></tr>
+              <tr><td>BRK.B</td><td>16%</td><td class="pos-ret">+9.1%</td><td class="pos-ret">+140 bps</td></tr>
+              <tr><td>MSFT</td><td>18%</td><td class="pos-ret">+8.4%</td><td class="pos-ret">+148 bps</td></tr>
+              <tr><td>AMT</td><td>10%</td><td class="pos-ret">+7.9%</td><td class="pos-ret">+79 bps</td></tr>
+              <tr><td>NEE</td><td>8%</td><td class="neg-ret">−5.1%</td><td class="neg-ret">−40 bps</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="font-size:12px; color:var(--text3); margin-top:10px; text-align:center;">Auto-saved to Egnyte · /clients/johnson/reports/Q2-2025.pdf</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">Under the hood</div>
+    <h2>How the three MCPs connect</h2>
+    <p>Each data source has a specific job. Claude orchestrates all three so you never have to switch context.</p>
+  </div>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <h3>Morningstar pulls the fundamentals</h3>
+      <p>Star ratings, fair value estimates, moat ratings, analyst forecasts, and attribution data — the analytical backbone of every decision.</p>
+      <div class="source">Source: <span>Morningstar MCP</span></div>
+    </div>
+    <div class="flow-step">
+      <h3>Aiera monitors the calendar</h3>
+      <p>Earnings call transcripts, event alerts, guidance changes, and overnight developments — so nothing slips through before the open.</p>
+      <div class="source">Source: <span>Aiera MCP</span></div>
+    </div>
+    <div class="flow-step">
+      <h3>Claude synthesizes everything</h3>
+      <p>Combines both data sources into plain-language analysis, prioritized alerts, and ranked trade recommendations tailored to your book.</p>
+      <div class="source">Source: <span>Claude AI</span></div>
+    </div>
+    <div class="flow-step">
+      <h3>Egnyte stores the output</h3>
+      <p>Reports, models, and notes are saved directly to your firm's file storage — version-controlled, organized, and ready to share with clients.</p>
+      <div class="source">Source: <span>Egnyte MCP</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CTA / SETUP
+══════════════════════════════════════════ -->
+<section class="section" id="setup">
+  <div class="section-header">
+    <div class="section-tag">Getting started</div>
+    <h2>Set up in under 10 minutes</h2>
+    <p>Install the plugins, connect your data subscriptions, and you're live. No code, no infrastructure — just markdown files.</p>
+  </div>
+  <div class="cta-cards">
+    <div class="cta-card">
+      <h4>1 · Install the plugins</h4>
+      <p>Add the marketplace and install the core plugin first, then the wealth management add-on.</p>
+      <code>claude plugin install financial-analysis<br>claude plugin install wealth-management</code>
+    </div>
+    <div class="cta-card">
+      <h4>2 · Authenticate data sources</h4>
+      <p>Each MCP requires a subscription. Authenticate once and Claude handles the rest.</p>
+      <code>/morningstar:authenticate<br>/aiera:authenticate<br>/egnyte:authenticate</code>
+    </div>
+    <div class="cta-card">
+      <h4>3 · Run your first morning scan</h4>
+      <p>Just tell Claude your holdings and ask what you need to know. No templates, no setup.</p>
+      <code>"What do I need to know about my book today? Holdings: MSFT, AAPL, JPM..."</code>
+    </div>
+    <div class="cta-card">
+      <h4>4 · Customize for your firm</h4>
+      <p>Drop your IPS targets, client names, and report templates into the skill files. Claude learns your process.</p>
+      <code>Edit skills/portfolio-rebalance/SKILL.md<br>Edit skills/client-report/SKILL.md</code>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built on <strong style="color:var(--text2);">Claude for Financial Services Plugins</strong> · Apache 2.0 ·
+  These examples are illustrative. AI-generated analysis should be reviewed by qualified financial professionals before acting on it.
+</footer>
+
+<script>
+  // Smooth scroll + active nav pill
+  document.querySelectorAll('.nav-pill').forEach(pill => {
+    pill.addEventListener('click', e => {
+      document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  // Highlight nav pill on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const pills = document.querySelectorAll('.nav-pill[href]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        pills.forEach(p => {
+          p.classList.toggle('active', p.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
