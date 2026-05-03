@@ -3,655 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Think Lumen — HOA Intelligence Platform</title>
-<meta name="description" content="AI-powered intelligence for HOA boards and property managers. Real-time financials, compliance tracking, and Ask Lumen — your association's AI advisor.">
+<title>Think Lumen — Coming Soon</title>
+<meta name="description" content="Think Lumen — HOA Intelligence Platform. Coming soon.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --ink: #0f0e0c;
   --paper: #f7f5f0;
-  --warm: #f0ece4;
-  --surface: #ffffff;
-  --border: rgba(15,14,12,0.10);
-  --border-md: rgba(15,14,12,0.18);
   --muted: #7a7570;
   --accent: #c84b2f;
-  --accent-bg: #f9ede9;
-  --gold: #b8893a;
-  --gold-bg: #faf3e4;
-  --teal: #1d7d6a;
-  --teal-bg: #e3f4f0;
   --font: 'DM Sans', system-ui, -apple-system, sans-serif;
   --mono: 'DM Mono', 'Fira Mono', monospace;
 }
-
-html { scroll-behavior: smooth; }
-
+html, body {
+  height: 100%;
+}
 body {
   font-family: var(--font);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-/* ── NAV ─────────────────────────────────────────────────────────────── */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   background: var(--ink);
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  height: 56px;
-  gap: 16px;
-}
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.logo-mark {
-  width: 28px; height: 28px;
-  background: var(--accent);
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
-}
-
-.logo-name {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.9);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.nav-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-link {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.5);
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: color 0.15s;
-}
-.nav-link:hover { color: rgba(255,255,255,0.9); }
-
-.nav-cta {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: #fff;
-  background: var(--accent);
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  padding: 7px 14px;
-  border-radius: 5px;
-  transition: opacity 0.15s;
-}
-.nav-cta:hover { opacity: 0.88; }
-
-/* ── HERO ─────────────────────────────────────────────────────────────── */
-.hero {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 96px 32px 80px;
-  text-align: center;
-}
-
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 1px solid rgba(200,75,47,0.2);
-  border-radius: 20px;
-  padding: 5px 14px;
-  margin-bottom: 28px;
-}
-
-.hero h1 {
-  font-size: clamp(36px, 6vw, 62px);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  margin-bottom: 24px;
-}
-
-.hero h1 em {
-  font-style: normal;
-  color: var(--accent);
-}
-
-.hero-sub {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--muted);
-  max-width: 580px;
-  margin: 0 auto 40px;
-  line-height: 1.7;
-}
-
-.hero-actions {
+  color: var(--paper);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  min-height: 100vh;
 }
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 13px 26px;
-  border-radius: 7px;
-  transition: opacity 0.15s;
+.container {
+  text-align: center;
+  padding: 48px 32px;
+  max-width: 480px;
 }
-.btn-primary:hover { opacity: 0.88; }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 13px 26px;
-  border-radius: 7px;
-  border: 1px solid var(--border-md);
-  transition: background 0.15s;
-}
-.btn-secondary:hover { background: var(--warm); }
-
-/* ── SECTION WRAPPER ─────────────────────────────────────────────────── */
-section {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 72px 32px;
-}
-
-.section-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  margin-bottom: 16px;
-}
-
-.section-sub {
-  font-size: 16px;
-  color: var(--muted);
-  max-width: 540px;
-  line-height: 1.7;
-  margin-bottom: 48px;
-}
-
-/* ── FEATURES GRID ───────────────────────────────────────────────────── */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.feature-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px;
-  transition: box-shadow 0.2s;
-}
-.feature-card:hover { box-shadow: 0 4px 20px rgba(15,14,12,0.08); }
-
-.feature-icon {
-  width: 40px; height: 40px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  margin-bottom: 16px;
-}
-.icon-accent { background: var(--accent-bg); }
-.icon-gold   { background: var(--gold-bg); }
-.icon-teal   { background: var(--teal-bg); }
-
-.feature-card h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-}
-
-.feature-card p {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* ── ASK LUMEN CALLOUT ───────────────────────────────────────────────── */
-.ask-lumen-section {
-  background: var(--ink);
-  padding: 0;
-  margin: 0;
-}
-
-.ask-lumen-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 80px 32px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
-}
-
-@media (max-width: 680px) {
-  .ask-lumen-inner { grid-template-columns: 1fr; gap: 40px; }
-}
-
-.ask-lumen-text .section-label { color: rgba(255,255,255,0.35); }
-.ask-lumen-text .section-title { color: #fff; }
-.ask-lumen-text .section-title em { font-style: normal; color: var(--accent); }
-.ask-lumen-text .section-sub { color: rgba(255,255,255,0.5); margin-bottom: 32px; }
-
-.ask-lumen-chat {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.chat-bubble {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.chat-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-}
-.avatar-user { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); }
-.avatar-ai   { background: var(--accent); color: #fff; }
-
-.chat-text {
-  font-size: 13px;
-  line-height: 1.55;
-  padding: 10px 14px;
-  border-radius: 8px;
-  max-width: 85%;
-}
-.bubble-user { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); border-radius: 8px 8px 8px 2px; }
-.bubble-ai   { background: rgba(200,75,47,0.15); color: rgba(255,255,255,0.85); border-radius: 8px 8px 2px 8px; }
-
-.chat-input-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 7px;
-  padding: 8px 12px;
-  margin-top: 4px;
-}
-.chat-input-row span {
-  font-size: 13px;
-  color: rgba(255,255,255,0.25);
-  flex: 1;
-}
-.chat-send {
-  width: 26px; height: 26px;
-  background: var(--accent);
-  border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-}
-.chat-send svg { width: 12px; height: 12px; fill: #fff; }
-
-/* ── HOW IT WORKS ────────────────────────────────────────────────────── */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 32px;
-  counter-reset: steps;
-}
-
-.step {
-  counter-increment: steps;
-  position: relative;
-  padding-left: 52px;
-}
-.step::before {
-  content: counter(steps);
-  position: absolute;
-  left: 0; top: 0;
-  width: 36px; height: 36px;
-  background: var(--warm);
-  border: 1px solid var(--border-md);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.step h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  margin-top: 6px;
-}
-.step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-/* ── DIVIDER ─────────────────────────────────────────────────────────── */
-.divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0 32px;
-}
-
-/* ── CTA BAND ────────────────────────────────────────────────────────── */
-.cta-band {
-  background: var(--warm);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 0;
-  margin: 0;
-}
-.cta-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 72px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-.cta-text h2 {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin-bottom: 8px;
-}
-.cta-text p { font-size: 15px; color: var(--muted); }
-
-/* ── FOOTER ──────────────────────────────────────────────────────────── */
-footer {
-  background: var(--ink);
-  padding: 40px 32px;
-}
-.footer-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.footer-logo .logo-name { font-size: 11px; }
-.footer-copy {
-  font-size: 12px;
-  color: rgba(255,255,255,0.25);
-  font-family: var(--mono);
-  letter-spacing: 0.04em;
-}
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-.footer-links a {
-  font-family: var(--mono);
+.wordmark {
   font-size: 11px;
-  color: rgba(255,255,255,0.35);
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  transition: color 0.15s;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(247,245,240,0.35);
+  margin-bottom: 40px;
 }
-.footer-links a:hover { color: rgba(255,255,255,0.7); }
-
-/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  nav { padding: 0 20px; }
-  .nav-link { display: none; }
-  .hero { padding: 64px 20px 56px; }
-  section { padding: 56px 20px; }
-  .cta-inner { flex-direction: column; align-items: flex-start; }
-  .footer-inner { flex-direction: column; align-items: flex-start; }
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin: 0 10px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+h1 {
+  font-size: clamp(28px, 6vw, 42px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  color: #f7f5f0;
+}
+h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+p {
+  font-size: 15px;
+  color: rgba(247,245,240,0.45);
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.footer {
+  margin-top: 56px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: rgba(247,245,240,0.18);
+  text-transform: uppercase;
 }
 </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">
-    <div class="logo-mark">TL</div>
-    <span class="logo-name">Think Lumen</span>
-  </a>
-  <div class="nav-right">
-    <a href="#features" class="nav-link">Features</a>
-    <a href="#ask-lumen" class="nav-link">Ask Lumen</a>
-    <a href="#how-it-works" class="nav-link">How It Works</a>
-    <a href="mailto:hello@think-lumen.com" class="nav-cta">Request Demo</a>
-  </div>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-eyebrow">
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="5" fill="#c84b2f"/></svg>
-    HOA Intelligence Platform
-  </div>
-  <h1>Your association runs<br>on <em>better information.</em></h1>
-  <p class="hero-sub">Think Lumen gives HOA boards and property managers a real-time financial dashboard, compliance tracking, and an AI advisor that actually knows your association.</p>
-  <div class="hero-actions">
-    <a href="mailto:hello@think-lumen.com" class="btn-primary">
-      Request a Demo
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <a href="#features" class="btn-secondary">See What's Included</a>
-  </div>
+<div class="container">
+  <div class="wordmark">Think Lumen <span class="dot"></span> HOA Intelligence</div>
+  <h1>Something<br><em>better</em> is coming.</h1>
+  <p>We're putting the finishing touches on our new platform. Check back soon.</p>
+  <div class="footer">think-lumen.com</div>
 </div>
-
-<hr class="divider">
-
-<!-- FEATURES -->
-<section id="features">
-  <div class="section-label">Platform</div>
-  <h2 class="section-title">Everything the board needs.<br>Nothing it doesn't.</h2>
-  <p class="section-sub">Built for the way boards actually work — not accountants, not lawyers. Clear numbers, clear alerts, clear action.</p>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon icon-accent">📊</div>
-      <h3>Live Financial Dashboard</h3>
-      <p>Monthly income statements, reserve balances, and budget vs. actuals — all in one view, updated each package cycle.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon icon-gold">⚡</div>
-      <h3>Alerts That Mean Something</h3>
-      <p>Red flags for unresolved issues. Grey badges for items already sent to management. No noise — just what needs your attention.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon icon-teal">🏢</div>
-      <h3>Unit-Level Intelligence</h3>
-      <p>Delinquency tracking, chargeback history, and owner records — searchable by unit, owner, or building.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon icon-accent">📋</div>
-      <h3>Reserve Study Projections</h3>
-      <p>30-year funding models, percent-funded tracking, and what-if scenarios tied to your actual reserve study.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon icon-gold">🗓️</div>
-      <h3>Meeting & Compliance Tracker</h3>
-      <p>Board elections, budget deadlines, required notices — tracked against state statutes so nothing falls through.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon icon-teal">🔍</div>
-      <h3>Document Intelligence</h3>
-      <p>CC&Rs, bylaws, and vendor contracts — indexed and searchable so you can find the answer in seconds.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- ASK LUMEN -->
-<div class="ask-lumen-section" id="ask-lumen">
-  <div class="ask-lumen-inner">
-    <div class="ask-lumen-text">
-      <div class="section-label">Ask Lumen</div>
-      <h2 class="section-title">Your association's<br><em>AI advisor.</em></h2>
-      <p class="section-sub">Ask Lumen knows your financials, your governing documents, and your history. Ask it anything — and get a straight answer, not a search result.</p>
-      <a href="mailto:hello@think-lumen.com" class="btn-primary">See It in Action</a>
-    </div>
-    <div class="ask-lumen-chat">
-      <div class="chat-bubble">
-        <div class="chat-avatar avatar-user">You</div>
-        <div class="chat-text bubble-user">Are we on track with reserve funding this year?</div>
-      </div>
-      <div class="chat-bubble">
-        <div class="chat-avatar avatar-ai">AL</div>
-        <div class="chat-text bubble-ai">You're currently at 61% funded against a 67% target. The shortfall traces to the deferred pool resurfacing — $38K was moved to FY2027. You'll want to flag this at the May meeting before the FY2027 budget cycle opens.</div>
-      </div>
-      <div class="chat-bubble">
-        <div class="chat-avatar avatar-user">You</div>
-        <div class="chat-text bubble-user">What does our reserve study say about that project?</div>
-      </div>
-      <div class="chat-bubble">
-        <div class="chat-avatar avatar-ai">AL</div>
-        <div class="chat-text bubble-ai">Your 2025 reserve study estimates $42,000 for pool deck resurfacing in Year 2, with a 4% inflation factor applied. Current reserve balance for that line is $18,400.</div>
-      </div>
-      <div class="chat-input-row">
-        <span>Ask anything about your association…</span>
-        <div class="chat-send">
-          <svg viewBox="0 0 12 12"><path d="M1 6h10M7 2l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section id="how-it-works">
-  <div class="section-label">Process</div>
-  <h2 class="section-title">Up and running in days,<br>not months.</h2>
-  <p class="section-sub">We handle the setup. You handle the decisions.</p>
-
-  <div class="steps">
-    <div class="step">
-      <h3>Connect Your Data</h3>
-      <p>We import your financials, governing documents, reserve study, and unit records. No new software for your management company.</p>
-    </div>
-    <div class="step">
-      <h3>We Build Your Platform</h3>
-      <p>Your custom dashboard is configured to your association's structure — buildings, units, GL accounts, and compliance calendar.</p>
-    </div>
-    <div class="step">
-      <h3>Board Gets Access</h3>
-      <p>Board members log in from any device. Ask Lumen is ready to answer questions on day one.</p>
-    </div>
-    <div class="step">
-      <h3>Monthly Updates</h3>
-      <p>Each month's board package automatically refreshes your dashboard. Alerts surface before the meeting, not during it.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CTA BAND -->
-<div class="cta-band">
-  <div class="cta-inner">
-    <div class="cta-text">
-      <h2>Ready to see your association clearly?</h2>
-      <p>Schedule a 20-minute demo — we'll walk through your actual financials.</p>
-    </div>
-    <a href="mailto:hello@think-lumen.com" class="btn-primary" style="white-space:nowrap;">
-      Request a Demo
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">
-      <div class="logo-mark">TL</div>
-      <span class="logo-name">Think Lumen</span>
-    </div>
-    <div class="footer-links">
-      <a href="mailto:hello@think-lumen.com">Contact</a>
-      <a href="#features">Platform</a>
-      <a href="#ask-lumen">Ask Lumen</a>
-    </div>
-    <div class="footer-copy">&copy; 2026 Think Lumen. All rights reserved.</div>
-  </div>
-</footer>
-
 </body>
 </html>

@@ -890,26 +890,63 @@ function switchTab(btn, id) {
   el.classList.add('active');
 }
 
-const PASS_HASH = '6f46be4ee1fe40c93dd4d003df2eee923f656125460ff5d37a1319e7c753580c';
+const PASS_HASHES = {
+  admin: '6f46be4ee1fe40c93dd4d003df2eee923f656125460ff5d37a1319e7c753580c',
+  rick:  '0839f0f8478346211ded081b2a745ac60e9a74d3c3e55f54a3cc7cd085496ef6',
+  ruth:  '37133a88542afe5314216863b2918abf0a069db48d8dbe86c1df79f8efef7b89',
+};
+const BURNED_KEY = 'psb3_draft_burned';
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+function getBurned() {
+  try { return JSON.parse(localStorage.getItem(BURNED_KEY) || '[]'); } catch { return []; }
+}
+function burnKey(hash) {
+  const b = getBurned();
+  if (!b.includes(hash)) { b.push(hash); localStorage.setItem(BURNED_KEY, JSON.stringify(b)); }
+}
+
+function unlock() {
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+}
+
 async function checkPass() {
   const val = document.getElementById('lock-input').value;
   const hash = await sha256(val);
-  if (hash === PASS_HASH) {
+
+  if (hash === PASS_HASHES.admin) {
     sessionStorage.setItem('psb3_draft_auth', '1');
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-  } else {
-    document.getElementById('lock-error').textContent = 'Incorrect passphrase — try again.';
-    document.getElementById('lock-input').value = '';
-    document.getElementById('lock-input').focus();
+    sessionStorage.setItem('psb3_draft_key', 'admin');
+    unlock(); return;
   }
+
+  const guestEntry = Object.entries(PASS_HASHES).find(([k, h]) => k !== 'admin' && h === hash);
+  if (guestEntry) {
+    if (getBurned().includes(hash)) {
+      document.getElementById('lock-error').textContent = 'This passkey has expired — contact Jeff for a new one.';
+      document.getElementById('lock-input').value = '';
+      document.getElementById('lock-input').focus();
+      return;
+    }
+    sessionStorage.setItem('psb3_draft_auth', '1');
+    sessionStorage.setItem('psb3_draft_key', hash);
+    unlock(); return;
+  }
+
+  document.getElementById('lock-error').textContent = 'Incorrect passphrase — try again.';
+  document.getElementById('lock-input').value = '';
+  document.getElementById('lock-input').focus();
 }
+
+window.addEventListener('beforeunload', () => {
+  const key = sessionStorage.getItem('psb3_draft_key');
+  if (key && key !== 'admin') burnKey(key);
+});
 
 document.getElementById('lock-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') checkPass();
