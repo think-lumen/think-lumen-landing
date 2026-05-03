@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSB III — Enhanced Board Package · April 2026 [DRAFT]</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0f0e0c;
+  --paper: #f7f5f0;
+  --warm: #f0ece4;
+  --surface: #ffffff;
+  --border: rgba(15,14,12,0.10);
+  --border-md: rgba(15,14,12,0.18);
+  --muted: #7a7570;
+  --accent: #c84b2f;
+  --gold: #b8893a;
+  --teal: #1d7d6a;
+  --warn-color: #b07a10;
+  --danger-color: #a83524;
+  --info-color: #1a5fa8;
+  --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'DM Mono', 'Fira Mono', monospace;
+}
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.6;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+.cover {
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  padding: 36px 40px 32px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cover-left h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+.cover-left .sub { font-size: 13px; color: var(--muted); line-height: 1.8; }
+.cover-left .sub span { color: var(--ink); }
+.cover-right { text-align: right; }
+.cover-badge { background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
+.cover-badge.draft { background: var(--warn-color); }
+.cover-right .pkg-date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.alerts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+.alert { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 7px; border-left: 3px solid; }
+.alert.fail  { background: #fdf1ef; border-color: var(--danger-color); }
+.alert.warn  { background: #fdf6e3; border-color: var(--warn-color); }
+.alert.info  { background: #e8f1fc; border-color: var(--info-color); }
+.alert.ok    { background: #e6f5f1; border-color: var(--teal); }
+.alert.sent  { background: #f4f5f6; border-color: #aaa; }
+.alert-icon  { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.alert strong { display: block; font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+.alert span   { font-size: 12px; color: var(--muted); }
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.kpi-label { font-size: 10.5px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-pill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; padding: 2px 7px; border-radius: 3px; margin-top: 6px; }
+.kpi.danger .kpi-value { color: var(--danger-color); }
+.kpi.warn   .kpi-value { color: var(--warn-color); }
+.kpi.ok     .kpi-value { color: var(--teal); }
+.kpi.neutral .kpi-value { color: var(--ink); }
+.kpi.danger .kpi-pill { background: #faeae7; color: var(--danger-color); }
+.kpi.warn   .kpi-pill { background: #fdf3dc; color: var(--warn-color); }
+.kpi.ok     .kpi-pill { background: #e3f4f0; color: var(--teal); }
+.section { margin-bottom: 32px; }
+.section-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+.section-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.section-sub { font-size: 11.5px; color: var(--muted); }
+.section-badge { font-size: 10px; font-weight: 700; letter-spacing: .07em; padding: 2px 8px; border-radius: 3px; margin-left: auto; }
+.badge-fail   { background: #faeae7; color: var(--danger-color); }
+.badge-warn   { background: #fdf3dc; color: var(--warn-color); }
+.badge-ok     { background: #e3f4f0; color: var(--teal); }
+.badge-info   { background: #e8f1fc; color: var(--info-color); }
+.badge-gap    { background: #f3f0fb; color: #5a3fa8; }
+.badge-draft  { background: #fdf3dc; color: var(--warn-color); }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.tbl th { text-align: left; padding: 7px 10px; font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 2px solid var(--border-md); background: var(--warm); }
+.tbl th.r { text-align: right; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.tbl td.r { text-align: right; font-family: var(--mono); font-size: 12px; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.cat-hdr td { background: var(--warm); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 6px 10px; }
+.tbl tr.total-row td { font-weight: 600; border-top: 2px solid var(--border-md); background: var(--warm); }
+.tbl tr.grand-total td { font-weight: 700; font-size: 13px; border-top: 2px solid var(--ink); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.card-body { padding: 16px; }
+.red    { color: var(--danger-color); }
+.green  { color: var(--teal); }
+.amber  { color: var(--warn-color); }
+.flag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .07em; padding: 2px 6px; border-radius: 3px; }
+.flag.fail { background: #faeae7; color: var(--danger-color); }
+.flag.warn { background: #fdf3dc; color: var(--warn-color); }
+.flag.ok   { background: #e3f4f0; color: var(--teal); }
+.flag.gap  { background: #f3f0fb; color: #5a3fa8; }
+.flag.sent { background: #eef2f7; color: #556; }
+.callout { border-radius: 7px; padding: 14px 16px; margin: 12px 0; font-size: 12.5px; }
+.callout.red   { background: #fdf1ef; border-left: 3px solid var(--danger-color); }
+.callout.amber { background: #fdf6e3; border-left: 3px solid var(--warn-color); }
+.callout.teal  { background: #e6f5f1; border-left: 3px solid var(--teal); }
+.callout.info  { background: #e8f1fc; border-left: 3px solid var(--info-color); }
+.callout strong { font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.grid4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.bs-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.bs-row:last-child { border-bottom: none; }
+.bs-row.bold { font-weight: 600; border-top: 2px solid var(--border-md); padding-top: 7px; }
+.bs-row.grand { font-weight: 700; font-size: 13.5px; border-top: 2px solid var(--ink); }
+.bs-label { color: var(--ink); }
+.bs-val { font-family: var(--mono); font-size: 12px; }
+.progress-wrap { background: var(--warm); border-radius: 6px; height: 14px; overflow: hidden; margin: 8px 0; }
+.progress-bar  { height: 100%; border-radius: 6px; }
+.progress-bar.danger { background: var(--danger-color); }
+.progress-bar.warn   { background: var(--warn-color); }
+.progress-bar.ok     { background: var(--teal); }
+.ar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+.ar-card-header { display: flex; align-items: center; padding: 12px 14px; gap: 12px; border-bottom: 1px solid var(--border); background: var(--warm); }
+.ar-addr { font-weight: 600; font-size: 13px; flex: 1; }
+.ar-status { font-size: 10px; font-weight: 700; letter-spacing: .07em; padding: 3px 8px; border-radius: 3px; background: #faeae7; color: var(--danger-color); }
+.ar-status.atty  { background: #faeae7; color: var(--danger-color); }
+.ar-status.hold  { background: #fdf3dc; color: var(--warn-color); }
+.ar-status.lien  { background: #faeae7; color: var(--danger-color); }
+.ar-status.notice { background: #e8f1fc; color: var(--info-color); }
+.ar-status.chgbk { background: #f3f0fb; color: #5a3fa8; }
+.ar-total { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--danger-color); }
+.ar-detail { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+.ar-detail-cell { padding: 8px 14px; border-right: 1px solid var(--border); font-size: 11.5px; }
+.ar-detail-cell:last-child { border-right: none; }
+.ar-detail-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.ar-detail-val { font-family: var(--mono); font-weight: 600; }
+.proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.proj-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.proj-meta { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+.proj-fins { display: flex; gap: 20px; flex-wrap: wrap; }
+.proj-fin { font-size: 11.5px; }
+.proj-fin-label { color: var(--muted); }
+.proj-fin-value { font-weight: 600; font-family: var(--mono); }
+.proj-badge { font-size: 10px; font-weight: 700; letter-spacing: .07em; padding: 3px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
+.proj-badge.active   { background: #fdf3dc; color: var(--warn-color); }
+.proj-badge.complete { background: #e3f4f0; color: var(--teal); }
+.compare-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.compare-row:last-child { border-bottom: none; }
+.compare-label { flex: 1; }
+.compare-feb { font-family: var(--mono); color: var(--muted); width: 100px; text-align: right; }
+.compare-mar { font-family: var(--mono); font-weight: 600; width: 100px; text-align: right; }
+.compare-delta { width: 80px; text-align: right; font-size: 11px; font-family: var(--mono); }
+.wo-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.wo-row:last-child { border-bottom: none; }
+.wo-unit { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 60px; flex-shrink: 0; }
+.wo-desc { flex: 1; }
+.wo-status { font-size: 10px; font-weight: 700; letter-spacing: .06em; padding: 2px 6px; border-radius: 3px; flex-shrink: 0; }
+.wo-status.open   { background: #fdf3dc; color: var(--warn-color); }
+.wo-status.done   { background: #e3f4f0; color: var(--teal); }
+.doc-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+@media print {
+  body { background: #fff; padding: 0; max-width: 100%; font-size: 11px; }
+  .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; border-radius: 0; padding: 18px 22px 14px; margin-bottom: 14px; }
+  .cover-left h1 { font-size: 17px; margin-bottom: 3px; }
+  .cover-left .sub { font-size: 11px; line-height: 1.6; }
+  .alert, .callout, .kpi, .flag, .badge-fail, .badge-warn, .badge-ok, .badge-info, .badge-gap, .badge-draft, .ar-status, .proj-badge, .wo-status { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .section { page-break-inside: avoid; }
+  .tab-bar, .no-print { display: none !important; }
+  .tab-pane { display: block !important; page-break-before: always; }
+  #tab-income { page-break-before: avoid; }
+  @page {
+    margin: 18mm 15mm 24mm;
+    @bottom-left { content: "Enhanced Board Package \2013 April 2026 [DRAFT]"; font-size: 8px; color: #7a7570; font-family: system-ui, sans-serif; }
+    @bottom-center { content: counter(page); font-size: 8px; color: #7a7570; font-family: 'DM Mono', 'Fira Mono', monospace; }
+    @bottom-right { content: "Confidential \2014 Data Not Final"; font-size: 8px; color: #b07a10; font-family: system-ui, sans-serif; }
+  }
+}
+.tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { background: none; border: none; padding: 8px 14px; font-family: var(--font); font-size: 12.5px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; transition: color .15s; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.draft-banner { background: #fdf3dc; border: 1.5px dashed var(--warn-color); border-radius: 7px; padding: 10px 16px; margin-bottom: 20px; font-size: 12px; color: var(--warn-color); font-weight: 600; text-align: center; }
+#lock-screen { position:fixed; inset:0; background:#0f0e0c; display:flex; align-items:center; justify-content:center; z-index:9999; }
+.lock-box { background:#1a1917; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:40px 48px; width:360px; text-align:center; }
+.lock-logo { font-size:13px; font-weight:600; letter-spacing:.12em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:28px; }
+.lock-title { font-size:17px; font-weight:600; color:#f7f5f0; margin-bottom:4px; }
+.lock-sub { font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:28px; line-height:1.5; }
+.lock-input { width:100%; padding:11px 14px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#f7f5f0; font-size:14px; font-family:var(--font); letter-spacing:.05em; outline:none; margin-bottom:12px; }
+.lock-input::placeholder { color:rgba(255,255,255,0.25); }
+.lock-input:focus { border-color:rgba(255,255,255,0.35); }
+.lock-btn { width:100%; padding:11px; background:#c84b2f; border:none; border-radius:6px; color:#fff; font-size:13px; font-weight:600; font-family:var(--font); cursor:pointer; letter-spacing:.04em; transition:background .15s; }
+.lock-btn:hover { background:#b03f26; }
+.lock-error { font-size:12px; color:#e07060; margin-top:10px; min-height:16px; }
+#main-content { display:none; }
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo">Think Lumen · PSB III</div>
+    <div class="lock-title">Board Package — April 2026</div>
+    <div class="lock-sub">Confidential · Board Use Only<br>Enter passphrase to continue</div>
+    <input id="lock-input" class="lock-input" type="password" placeholder="Passphrase" autocomplete="off">
+    <button class="lock-btn" onclick="checkPass()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
+
+<div id="main-content">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-left">
+    <h1>Palm Springs Biltmore Condominiums III</h1>
+    <div class="sub">
+      <span>Enhanced Board Financial Package</span> · April 2026<br>
+      Fiscal Year: September 1, 2025 – August 31, 2026 · Month 8 of 12<br>
+      Property Manager: <span>Personalized Property Management — Caren Oliva</span><br>
+      Prepared by <span>Jeffrey Jerome</span> on behalf of the Board
+    </div>
+  </div>
+  <div class="cover-right">
+    <div class="cover-badge draft">DRAFT — DATA NOT FINAL</div><br>
+    <div class="cover-badge">BOARD CONFIDENTIAL</div>
+    <div class="pkg-date" style="margin-top:8px">Compiled May 3, 2026<br>AppFolio data: preliminary, pulled 5/3/2026<br>Bank data: Banc of California statements (final)<br>Management report: PPM April 2026<br><span style="color:var(--warn-color)">⚠ Awaiting PPM finalized AppFolio export</span></div>
+    <div style="margin-top:12px" class="no-print">
+      <button onclick="window.print()" style="background:var(--ink);border:1px solid var(--ink);color:#fff;padding:6px 16px;border-radius:5px;font-family:var(--font);font-size:12px;cursor:pointer;">Print / Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAFT BANNER -->
+<div class="draft-banner">
+  ⚠ DRAFT — Financial data pulled from AppFolio on 5/3/2026 and has not been finalized by PPM. Bank balances (Banc of California statements) are final. Do not distribute until PPM confirms final figures.
+</div>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi danger">
+    <div class="kpi-label">YTD Net Income</div>
+    <div class="kpi-value">($42,876)</div>
+    <div class="kpi-sub">vs $0 budget · ↑ loss $3,734 from Mar</div>
+    <div class="kpi-pill">LOSS · MO 8 OF 12</div>
+  </div>
+  <div class="kpi warn">
+    <div class="kpi-label">Reserve Balance</div>
+    <div class="kpi-value">$357,016</div>
+    <div class="kpi-sub">Bank statement · 4/30/2026 · Final</div>
+    <div class="kpi-pill">32% FUNDED · ↑ $15,716</div>
+  </div>
+  <div class="kpi neutral">
+    <div class="kpi-label">Operating Cash</div>
+    <div class="kpi-value">$223,667</div>
+    <div class="kpi-sub">Bank statement · 4/30/2026 · Final</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-label">Active Collections</div>
+    <div class="kpi-value">4</div>
+    <div class="kpi-sub">Vega $13,536 · 3rd party · 3 settled in April</div>
+    <div class="kpi-pill">ACTION REQUIRED</div>
+  </div>
+  <div class="kpi warn">
+    <div class="kpi-label">April Month Loss</div>
+    <div class="kpi-value">($3,733)</div>
+    <div class="kpi-sub">Tree trimming + permits spike</div>
+    <div class="kpi-pill">OVER BUDGET</div>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div class="alerts">
+  <div class="alert warn">
+    <div class="alert-icon">⚠</div>
+    <div><strong>DRAFT DATA — Pending PPM final reconciliation</strong><span>AppFolio P&amp;L and balance sheet compiled from available source reports as of 5/3/2026. Numbers may be refined when PPM finalizes the April package. Bank balances (Banc of California) are confirmed final.</span></div>
+  </div>
+  <div class="alert ok">
+    <div class="alert-icon">✓</div>
+    <div><strong>Adjusted NOI near breakeven — $43,989 in reserve reclassifications applied</strong><span>GL 5335 Plumbing ($22,001), GL 5341 B&amp;G ($15,076), and GL 5365 Electrical ($6,912) include reserve-eligible capital work being reclassified to reserve accounts following the March board meeting (consistent with Sept 2025–Feb 2026 reclassification pattern). Applying these adjustments brings NOI from ($42,876) to <strong>+$1,113</strong>. The $20,400 Frontier signing bonus (GL 4150) is expected in May — if received and no major new issues arise, FY2026 finishes favorable. March entries pending AppFolio finalization.</span></div>
+  </div>
+  <div class="alert info">
+    <div class="alert-icon">ℹ</div>
+    <div><strong>Frontier Signing Bonus (GL 4150): $20,400 due to association — expected May 2026</strong><span>GL 4150 ($20,400 annual budget) reflects a signing bonus owed to the HOA under the Frontier bulk internet contract. $0 received through April — this is a timing item, not a miss. Payment is expected in May 2026. Board to confirm receipt with PPM.</span></div>
+  </div>
+  <div class="alert ok">
+    <div class="alert-icon">✓</div>
+    <div><strong>Combined TELECOM favorable: +$13,795 YTD vs combined budget</strong><span>GL 5040 (Frontier bulk internet) and GL 5060 (Spectrum Business) are one telecom budget — $44,712/year combined. YTD actual $16,013 vs $29,808 budget = +$13,795 favorable. All 4 server rooms have been migrated to Frontier Fiber Internet — systems fully operational. Remaining Spectrum charges cover the 4 server room internet connections (being phased out) and VoIP business lines for elevators. Next step: contact Spectrum Business to retain VoIP lines and modem only, and cancel the internet service now handled by Frontier. FY2027 proposal (May 19 vote): pass Frontier's $33/month per-unit cost to homeowners through dues, removing ~$36K/year from HOA operating budget.</span></div>
+  </div>
+  <div class="alert ok">
+    <div class="alert-icon">✓</div>
+    <div><strong>Assessment income favorable: +$7,614 YTD above budget</strong><span>Monthly assessments averaging $53,257 vs $52,305 budgeted. 102 units × $512.79 = $52,305; actuals running ~$952/month ahead — likely partial-month catch-ups and late payment timing. Positive signal.</span></div>
+  </div>
+  <div class="alert ok">
+    <div class="alert-icon">✓</div>
+    <div><strong>Reserve fund improved: $357,016 — up $15,716 from March 31</strong><span>Monthly reserve contribution ($18,450) + reserve interest ($221 in April) exceeded April reserve project spending (~$2,955). Reserve at 32% of $1,114K SCT target. On track for FY2027 study recalibration.</span></div>
+  </div>
+  <div class="alert warn">
+    <div class="alert-icon">!</div>
+    <div><strong>Unit #117 Vega: $13,536 — sent to 3rd party collections 4/7/2026</strong><span>Guralnick Gilliland Garcia referred to 3rd party collections. Includes $950.47 special assessment balance. Scudder (#101, $2,299) standing status after lien filed 4/1; Kuykendall-Barrett (#134, $2,812) on hold with Archer. Combined top-3 exposure: $18,647. Three accounts settled in April — White, D'Angelo, Marvan — $2,670 recovered.</span></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="section no-print">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab(this,'tab-income')">Income Statement</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-balance')">Balance Sheet</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-budget')">Budget vs Actual</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-reserves')">Reserve Fund</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-ar')">AR / Delinquency</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-projects')">Capital Projects</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-mgmt')">Management Report</button>
+  </div>
+</div>
+
+
+<!-- ═══ TAB: INCOME STATEMENT ═══════════════════════════════════════════ -->
+<div id="tab-income" class="tab-pane active section">
+  <div class="section-header">
+    <div class="section-title">Statement of Revenues &amp; Expenses</div>
+    <div class="section-sub">April 2026 (Month) &amp; YTD through 4/30/2026</div>
+    <div class="section-badge badge-fail">YTD LOSS $42,876</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">April 2026 — Current Month</div>
+        <div class="bs-row"><div class="bs-label">Assessment Income</div><div class="bs-val">$53,256.72</div></div>
+        <div class="bs-row"><div class="bs-label">Collection Reimbursements</div><div class="bs-val">$385.00</div></div>
+        <div class="bs-row"><div class="bs-label">Late Charges / Admin Fees</div><div class="bs-val">$356.82</div></div>
+        <div class="bs-row"><div class="bs-label" style="color:var(--muted)">Less: Reserve Transfer</div><div class="bs-val" style="color:var(--muted)">($18,450.00)</div></div>
+        <div class="bs-row bold"><div class="bs-label">Net Operating Income</div><div class="bs-val">$35,548.54</div></div>
+        <div class="bs-row"><div class="bs-label" style="font-size:11.5px;color:var(--muted)">Total Operating Expenses</div><div class="bs-val red">($39,281.99)</div></div>
+        <div class="bs-row bold"><div class="bs-label">April Net Loss</div><div class="bs-val red">($3,733.45)</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">YTD Comparison — Mar 31 vs Apr 30, 2026</div>
+        <div class="compare-row" style="font-size:10.5px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">
+          <div class="compare-label">Category</div>
+          <div class="compare-feb">Thru Mar</div>
+          <div class="compare-mar">Thru Apr</div>
+          <div class="compare-delta">April</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Total Operating Income</div>
+          <div class="compare-feb">$250,117</div>
+          <div class="compare-mar green">$285,666</div>
+          <div class="compare-delta green">+$35,549</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Total Operating Expenses</div>
+          <div class="compare-feb red">$289,259</div>
+          <div class="compare-mar red">$328,541</div>
+          <div class="compare-delta red">+$39,282</div>
+        </div>
+        <div class="compare-row" style="font-weight:600">
+          <div class="compare-label">Net Operating Income/(Loss)</div>
+          <div class="compare-feb red">($39,142)</div>
+          <div class="compare-mar red">($42,876)</div>
+          <div class="compare-delta red">($3,733)</div>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:10px;display:flex;gap:20px">
+          <span>Thru Mar = 7-month YTD</span><span>Thru Apr = 8-month YTD</span><span>April = month only</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <strong>April overruns — two items stand out:</strong> Tree Trimming (GL 5140) hit $6,940 in April vs $660/month budget — likely seasonal and possibly deferred from prior months. Permits (GL 5455) hit $1,366 vs $75 budget — confirm with PPM what triggered this. Collections legal costs ($835, GL 5510) reflect ongoing attorney activity on Vega and Scudder accounts. Buildings &amp; Grounds and Plumbing were both lighter in April vs prior months. Note: the large YTD totals for 5335 and 5341 include reserve-eligible work being recoded off the operating budget — actual operating exposure in those lines is lower than shown.
+  </div>
+  <div class="callout ok" style="border-color:var(--teal)">
+    <strong>FY2026 outlook — adjusted NOI is +$1,113 (near breakeven):</strong> AppFolio reports ($42,876) YTD, but $43,989 in reserve-eligible work is being reclassified from operating to reserve accounts (GL 5335 Plumbing: $22,001 · GL 5341 B&amp;G: $15,076 · GL 5365 Electrical: $6,912 — consistent with the Sept 2025–Feb 2026 reclassification schedule). With those adjustments applied, NOI is <strong>+$1,113</strong>. The $20,400 Frontier signing bonus (GL 4150) is expected in May — once received, adjusted position improves to <strong>+$21,513</strong>. Final figures pending PPM AppFolio reconciliation.
+  </div>
+</div>
+
+
+<!-- ═══ TAB: BALANCE SHEET ══════════════════════════════════════════════ -->
+<div id="tab-balance" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">Balance Sheet</div>
+    <div class="section-sub">As of April 30, 2026 · AppFolio preliminary · Pulled 5/3/2026 · V3.11</div>
+    <div class="section-badge badge-draft">DRAFT</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Assets</div>
+        <div class="bs-row"><div class="bs-label">1100 — Checking Account (2975)</div><div class="bs-val">$219,676.60</div></div>
+        <div class="bs-row"><div class="bs-label">1200 — Reserve Savings (1754)</div><div class="bs-val">$357,015.90</div></div>
+        <div class="bs-row"><div class="bs-label">1800 — Accounts Receivable</div><div class="bs-val">$30,645.23</div></div>
+        <div class="bs-row"><div class="bs-label">1801 — Allowance for Bad Debt</div><div class="bs-val red">($7,516.00)</div></div>
+        <div class="bs-row"><div class="bs-label">1811 — Prepaid Expenses</div><div class="bs-val">$1,012.80</div></div>
+        <div class="bs-row bold"><div class="bs-label">Total Assets</div><div class="bs-val">$600,834.53</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Liabilities &amp; Equity</div>
+        <div class="bs-row"><div class="bs-label">2000 — Accounts Payable</div><div class="bs-val">$10,614.29</div></div>
+        <div class="bs-row"><div class="bs-label">2010 — Prepaid Assessments</div><div class="bs-val">$23,340.32</div></div>
+        <div class="bs-row"><div class="bs-label">2012 — Arch Deposit</div><div class="bs-val">$500.00</div></div>
+        <div class="bs-row bold"><div class="bs-label">Total Liabilities</div><div class="bs-val">$34,454.61</div></div>
+        <div style="height:8px"></div>
+        <div class="bs-row"><div class="bs-label">Restricted Reserves (net)</div><div class="bs-val">$357,015.90</div></div>
+        <div class="bs-row bold"><div class="bs-label">Total Capital</div><div class="bs-val">$297,743.45</div></div>
+        <div class="bs-row grand"><div class="bs-label">Total Liabilities / Equity</div><div class="bs-val">$689,213.96</div></div>
+        <div style="margin-top:12px"></div>
+        <div class="bs-row"><div class="bs-label">3100 — Equity / Prior FYE</div><div class="bs-val">$340,619.02</div></div>
+        <div class="bs-row"><div class="bs-label" style="color:var(--danger-color)">3200 — YTD Excess Receipts (Disbursements)</div><div class="bs-val red">($42,875.57)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <strong>Operating cash discrepancy — $3,991 gap between AppFolio and bank statement:</strong> AppFolio balance sheet shows 1100 Checking at $219,676.60. Banc of California bank statement (final) shows $223,667.22 — a $3,990.62 difference. This is likely outstanding checks issued but not yet cleared, or deposits in transit. Normal timing difference; expect to resolve when PPM finalizes the register.
+  </div>
+  <div class="callout teal" style="margin-top:8px;font-size:12px">
+    <strong>Reserve fund detail (Restricted Reserves):</strong> PY balance $358,362.33 + CY transfers $147,600.00 (8 × $18,450) + reserve interest $1,866.11 − CY reserve expenditures $150,812.54 = $357,015.90. Net reserve fund slightly below FY start ($358,362), meaning project spending has marginally exceeded contributions + interest YTD.
+  </div>
+</div>
+
+
+<!-- ═══ TAB: BUDGET vs ACTUAL ═══════════════════════════════════════════ -->
+<div id="tab-budget" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">Budget vs Actual — Full GL Detail</div>
+    <div class="section-sub">YTD September 2025 – April 2026 (8 of 12 months)</div>
+    <div class="section-badge badge-fail">MULTIPLE OVERRUNS</div>
+  </div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:80px">GL</th>
+        <th>Description</th>
+        <th class="r">YTD Budget</th>
+        <th class="r">YTD Actual</th>
+        <th class="r">$ Variance</th>
+        <th class="r">% Var</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>
+        <tr class="cat-hdr"><td colspan="7">Operating Income</td></tr>
+        <tr><td>4110</td><td>Assessment Memberships</td><td class="r">$418,440</td><td class="r green">$426,054</td><td class="r green">+$7,614</td><td class="r green">+1.8%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>4125</td><td>Collection Reimbursements</td><td class="r">—</td><td class="r green">$3,085</td><td class="r green">+$3,085</td><td class="r">—</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>4131</td><td>Laundry Commission</td><td class="r">$4,000</td><td class="r amber">$1,295</td><td class="r amber">($2,705)</td><td class="r amber">-68%</td><td><span class="flag warn">MONITOR</span></td></tr>
+        <tr><td>4140</td><td>Late Assessment Charges</td><td class="r">—</td><td class="r green">$2,117</td><td class="r green">+$2,117</td><td class="r">—</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>4141</td><td>Admin Fee L/C</td><td class="r">—</td><td class="r green">$360</td><td class="r green">+$360</td><td class="r">—</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>4150</td><td>Frontier Signing Bonus — full $20,400 expected May 2026 <span style="font-size:10.5px;color:var(--teal)">(one-time · timing only · not a miss)</span></td><td class="r">$13,600</td><td class="r green">$0 → $20,400</td><td class="r green">+$6,800 projected</td><td class="r green">—</td><td><span class="flag ok">INCOMING MAY</span></td></tr>
+        <tr><td>4195</td><td>Miscellaneous Income</td><td class="r">$800</td><td class="r">$280</td><td class="r">($520)</td><td class="r">-65%</td><td><span class="flag gap">MONITOR</span></td></tr>
+        <tr><td>5010</td><td>Less: Reserve Transfer</td><td class="r">($147,600)</td><td class="r">($147,600)</td><td class="r">$0</td><td class="r">0%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Operating Income (net)</td><td class="r">$289,240</td><td class="r amber">$285,666</td><td class="r amber">($3,574)</td><td class="r amber">-1.2%</td><td></td></tr>
+
+        <tr class="cat-hdr"><td colspan="7">Utilities</td></tr>
+        <tr><td>5020</td><td>Electricity — SoCal Edison</td><td class="r">$23,333</td><td class="r red">$27,747</td><td class="r red">($4,413)</td><td class="r red">-19%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr><td>5030</td><td>Gas — SoCal Gas</td><td class="r">$26,667</td><td class="r red">$34,455</td><td class="r red">($7,789)</td><td class="r red">-29%</td><td><span class="flag fail">FAIL</span></td></tr>
+        <tr><td>5040/5060</td><td>Telecom †</td><td class="r">$29,808</td><td class="r green">$16,013</td><td class="r green">+$13,795</td><td class="r green">+46%</td><td><span class="flag ok">FAVORABLE</span></td></tr>
+        <tr><td>5050</td><td>Water — Desert Water Agency</td><td class="r">$14,400</td><td class="r amber">$15,889</td><td class="r amber">($1,489)</td><td class="r amber">-10%</td><td><span class="flag warn">WARN</span></td></tr>
+
+        <tr><td>5070</td><td>Waste Disposal / Sanitation</td><td class="r">$13,467</td><td class="r amber">$14,702</td><td class="r amber">($1,236)</td><td class="r amber">-9%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Utilities</td><td class="r">$108,075</td><td class="r amber">$108,806</td><td class="r amber">($731)</td><td class="r amber">-0.7%</td><td></td></tr>
+        <tr><td colspan="7" style="font-size:10.5px;color:var(--muted);padding:5px 10px;font-style:italic">† 5040/5060 Telecom: Frontier bulk internet + Spectrum Business (elevator VoIP, DoorKing gate VoIP). Combined budget reflects full telecom allocation.</td></tr>
+
+        <tr class="cat-hdr"><td colspan="7">Landscaping Maintenance</td></tr>
+        <tr><td>5110</td><td>Landscape Contract (Angel Beltran)</td><td class="r">$27,200</td><td class="r green">$27,200</td><td class="r">$0</td><td class="r">0%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>5140</td><td>Tree Trimming</td><td class="r">$5,280</td><td class="r red">$6,940</td><td class="r red">($1,660)</td><td class="r red">-31%</td><td><span class="flag warn">SEASONAL</span></td></tr>
+        <tr><td>5160</td><td>Seed / Fertilizer / Sod</td><td class="r">$2,333</td><td class="r red">$4,271</td><td class="r red">($1,937)</td><td class="r red">-83%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Landscaping</td><td class="r">$39,160</td><td class="r green">$38,411</td><td class="r green">+$749</td><td class="r green">+1.9%</td><td></td></tr>
+
+        <tr class="cat-hdr"><td colspan="7">Pool Maintenance</td></tr>
+        <tr><td>5210</td><td>Contract Pool Services</td><td class="r">$4,000</td><td class="r amber">$4,045</td><td class="r amber">($45)</td><td class="r amber">-1%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>5220</td><td>Pool Equipment Repair</td><td class="r">$2,960</td><td class="r green">$2,757</td><td class="r green">+$203</td><td class="r green">+7%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Pool</td><td class="r">$7,520</td><td class="r green">$6,802</td><td class="r green">+$718</td><td class="r green">+9.6%</td><td></td></tr>
+
+        <tr class="cat-hdr"><td colspan="7">Buildings &amp; Grounds Maintenance</td></tr>
+        <tr><td>5325</td><td>Roof Repair</td><td class="r">$1,400</td><td class="r amber">$2,018</td><td class="r amber">($618)</td><td class="r amber">-44%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr><td>5327</td><td>Building Interior Repair</td><td class="r">$4,000</td><td class="r green">$1,150</td><td class="r green">+$2,850</td><td class="r green">+71%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>5335</td><td>Plumbing — Best Price Plumbers</td><td class="r">$9,472</td><td class="r red">$25,537</td><td class="r red">($16,065)</td><td class="r red">-170%</td><td><span class="flag sent">RECODE IN PROCESS</span></td></tr>
+        <tr><td>5341</td><td>Buildings &amp; Grounds</td><td class="r">$16,200</td><td class="r red">$40,585</td><td class="r red">($24,385)</td><td class="r red">-151%</td><td><span class="flag sent">RECODE IN PROCESS</span></td></tr>
+        <tr><td>5350</td><td>Contract Janitorial (Cheryl Lynn Price) <span style="font-size:10px;color:var(--muted)">· 2025 year-end catch-up payment — Cheryl is now current; no ongoing overage expected</span></td><td class="r">$12,000</td><td class="r amber">$14,800</td><td class="r amber">($2,800)</td><td class="r amber">-23%</td><td><span class="flag sent">RECONCILED</span></td></tr>
+        <tr><td>5365</td><td>Electrical Repair (Grayco Electric)</td><td class="r">$4,000</td><td class="r amber">$7,649</td><td class="r amber">($3,649)</td><td class="r amber">-91%</td><td><span class="flag sent">RECODE IN PROCESS</span></td></tr>
+        <tr><td>5366</td><td>Elevator Repairs</td><td class="r">$7,333</td><td class="r green">$440</td><td class="r green">+$6,894</td><td class="r green">+94%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>5370</td><td>Pest Control</td><td class="r">$2,240</td><td class="r amber">$3,150</td><td class="r amber">($910)</td><td class="r amber">-41%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr><td>5395</td><td>Gate Maintenance</td><td class="r">$1,840</td><td class="r green">$1,321</td><td class="r green">+$519</td><td class="r green">+28%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Buildings &amp; Grounds
+          <span style="display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:2px">AppFolio (pre-recode): $96,684 &nbsp;·&nbsp; Reserve recodes applied: ($43,989) &nbsp;·&nbsp; <strong style="color:var(--teal)">Adjusted: $52,695</strong></span>
+        </td><td class="r">$68,285</td><td class="r green">$52,695 †</td><td class="r green">+$15,590</td><td class="r green">+23%</td><td><span class="flag ok">ADJUSTED</span></td></tr>
+
+        <tr class="cat-hdr"><td colspan="7">Administrative</td></tr>
+        <tr><td>5455</td><td>Permits</td><td class="r">$600</td><td class="r red">$2,292</td><td class="r red">($1,692)</td><td class="r red">-282%</td><td><span class="flag warn">CONFIRM</span></td></tr>
+        <tr><td>5468</td><td>Professional Fees</td><td class="r">$480</td><td class="r red">$1,409</td><td class="r red">($929)</td><td class="r red">-194%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr><td>5510</td><td>Collections (Legal Costs)</td><td class="r">—</td><td class="r red">$3,840</td><td class="r red">($3,840)</td><td class="r">—</td><td><span class="flag warn">ONGOING</span></td></tr>
+        <tr><td>5520</td><td>Insurance <span style="font-size:10px;color:var(--muted)">· budget reflects prior year premium; actual is current rate</span></td><td class="r">$34,648</td><td class="r amber">$41,918</td><td class="r amber">($7,270)</td><td class="r amber">-21%</td><td><span class="flag warn">BUDGET NOTE</span></td></tr>
+        <tr><td>5530</td><td>Management Services (PPM)</td><td class="r">$24,000</td><td class="r green">$23,987</td><td class="r green">+$13</td><td class="r">0%</td><td><span class="flag ok">OK</span></td></tr>
+        <tr><td>5540</td><td>Printing / Postage</td><td class="r">$1,200</td><td class="r red">$3,128</td><td class="r red">($1,928)</td><td class="r red">-161%</td><td><span class="flag warn">WARN</span></td></tr>
+        <tr class="total-row"><td></td><td>Total Administrative</td><td class="r">$66,200</td><td class="r red">$77,839</td><td class="r red">($11,639)</td><td class="r red">-18%</td><td></td></tr>
+
+        <tr class="grand-total">
+          <td></td><td>Total Operating Expense</td>
+          <td class="r">$289,240</td>
+          <td class="r red">$328,541</td>
+          <td class="r red">($39,301)</td>
+          <td class="r red">-14%</td>
+          <td></td>
+        </tr>
+        <tr class="grand-total">
+          <td></td><td style="font-weight:700">Net Operating Income / (Loss) — AppFolio <span style="font-size:10px;font-weight:400;color:var(--muted)">(pre-recode)</span></td>
+          <td class="r">$0</td>
+          <td class="r red">($42,876)</td>
+          <td class="r red">($42,876)</td>
+          <td class="r">—</td>
+          <td></td>
+        </tr>
+        <tr class="grand-total" style="background:#e6f5f1">
+          <td></td><td style="font-weight:700;color:var(--teal)">Adjusted NOI — reserve recodes applied (est.) <span style="font-size:10px;font-weight:400;color:var(--muted)">· +$20,400 Frontier bonus expected May</span></td>
+          <td class="r">$0</td>
+          <td class="r green">+$1,113</td>
+          <td class="r green">+$1,113</td>
+          <td class="r">—</td>
+          <td><span class="flag ok">NEAR BREAKEVEN</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout teal" style="margin-top:14px">
+    <strong>† Reserve reclassification — GL 5335, 5341, 5365 (Sept 2025–Feb 2026 confirmed):</strong> Following the March board meeting, management (Rick Olson, Ruth, Caren) recoded reserve-eligible capital work out of the operating budget and into reserve accounts — consistent with the established pattern documented in the Sept 2025–Feb 2026 reclassification schedule. Recoded amounts (Sept–Feb, confirmed):
+    <br><br>
+    <span style="font-family:var(--mono);font-size:11.5px;display:block;line-height:2">
+      GL 5335 Plumbing (stack remediation, pipe repairs): &nbsp;&nbsp;<strong>$22,001</strong> recoded to reserves<br>
+      GL 5341 Buildings &amp; Grounds (drywall, infrastructure): <strong>$15,076</strong> recoded to reserves<br>
+      GL 5365 Electrical (Grayco Electric, capital work): &nbsp;&nbsp;&nbsp;<strong>$6,912</strong> recoded to reserves<br>
+      <strong>Total reclassified: $43,989</strong>
+    </span>
+    <br>
+    Applying these recodes: B&amp;G category adjusts from ($28,398) over-budget to <strong>+$15,590 favorable</strong>. Reported NOI of ($42,876) adjusts to <strong>+$1,113</strong> — essentially breakeven before the $20,400 Frontier signing bonus due in May. March recode entries are in process; final figures will be confirmed in the finalized AppFolio export.
+  </div>
+  <div class="callout amber" style="margin-top:8px">
+    <strong>Combined TELECOM (GL 5040 + 5060) — +$13,795 favorable YTD:</strong> GL 5040 (Frontier) and GL 5060 (Spectrum Business) are one telecom budget — $44,712/year combined. The $4,320 Frontier budget line was a coding artifact; the full telecom budget is 5040+5060. YTD: Frontier $11,093 + Spectrum $4,920 = $16,013 actual vs $29,808 budget. All 4 server rooms have been migrated to Frontier Fiber Internet and are fully operational. Remaining Spectrum charges cover the 4 server room internet connections (to be canceled) and VoIP business lines for elevators. <strong>Next step:</strong> contact Spectrum Business to retain VoIP lines and modem only — cancel the internet portion now handled by Frontier Fiber. This will further reduce GL 5060 going forward. FY2027 proposal (May 19 vote): pass Frontier's $33/unit/month to homeowners through dues, removing ~$36K/year from HOA operating budget.
+  </div>
+</div>
+
+
+<!-- ═══ TAB: RESERVE FUND ════════════════════════════════════════════════ -->
+<div id="tab-reserves" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">Reserve Fund</div>
+    <div class="section-sub">As of April 30, 2026 · SCT Reserve Study basis</div>
+    <div class="section-badge badge-warn">32% FUNDED</div>
+  </div>
+
+  <div class="grid3">
+    <div class="kpi warn" style="margin-bottom:0">
+      <div class="kpi-label">Current Balance</div>
+      <div class="kpi-value">$357,016</div>
+      <div class="kpi-sub">Bank statement · confirmed final</div>
+      <div class="kpi-pill">↑ $15,716 FROM MARCH</div>
+    </div>
+    <div class="kpi warn" style="margin-bottom:0">
+      <div class="kpi-label">SCT Target (Fully Funded)</div>
+      <div class="kpi-value">$1,114,000</div>
+      <div class="kpi-sub">2024 SCT Reserve Study</div>
+      <div class="kpi-pill">32% FUNDED</div>
+    </div>
+    <div class="kpi neutral" style="margin-bottom:0">
+      <div class="kpi-label">Monthly Contribution</div>
+      <div class="kpi-value">$18,450</div>
+      <div class="kpi-sub">$221,400 annual · 8 mos = $147,600</div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;margin-bottom:28px">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Reserve Fund Progress — 32% of $1,114,000 SCT Target</div>
+    <div class="progress-wrap" style="height:20px">
+      <div class="progress-bar warn" style="width:32%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:4px">
+      <span>$0</span><span style="color:var(--warn-color);font-weight:600">$357K current (32%)</span><span>$1,114K target</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">FY2026 Reserve Activity (AppFolio)</div>
+        <div class="bs-row"><div class="bs-label">Prior Year Balance (Sep 1, 2025)</div><div class="bs-val">$358,362.33</div></div>
+        <div class="bs-row"><div class="bs-label">YTD Contributions (8 × $18,450)</div><div class="bs-val green">+$147,600.00</div></div>
+        <div class="bs-row"><div class="bs-label">YTD Reserve Interest Earned</div><div class="bs-val green">+$1,866.11</div></div>
+        <div class="bs-row"><div class="bs-label">YTD Reserve Expenditures</div><div class="bs-val red">($150,812.54)</div></div>
+        <div class="bs-row bold"><div class="bs-label">Balance April 30, 2026</div><div class="bs-val">$357,015.90</div></div>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:8px">Net change YTD: <span class="red">($1,346)</span> — reserve project spending marginally exceeds contributions + interest. Stack remediation and drywall work are primary expenditures.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Frontier Signing Bonus — GL 4150</div>
+        <div class="bs-row"><div class="bs-label">Signing Bonus Budgeted (Annual)</div><div class="bs-val">$20,400.00</div></div>
+        <div class="bs-row"><div class="bs-label">Received YTD (through April)</div><div class="bs-val amber">$0.00</div></div>
+        <div class="bs-row bold"><div class="bs-label">Due: May 2026</div><div class="bs-val green">TIMING — NOT MISSED</div></div>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:8px">GL 4150 ($20,400/year) is the Frontier signing bonus owed to the HOA under the bulk internet contract. Payment is expected in May 2026. Board should confirm receipt with PPM — if received in May, it will substantially offset the YTD operating loss.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <strong>FY2027 Reserve Study:</strong> Caren to deliver updated reserve study and FY2027 budget together, expected mid-to-late June 2026. The current 32% funding ratio and ongoing reserve drawdowns for stack replacement and drywall will likely drive a higher SCT-recommended contribution for FY2027. Board should be prepared for assessment discussion at the annual meeting.
+  </div>
+</div>
+
+
+<!-- ═══ TAB: AR / DELINQUENCY ════════════════════════════════════════════ -->
+<div id="tab-ar" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">AR / Delinquency Report</div>
+    <div class="section-sub">As of April 30, 2026 · 30+ day balances · 3 accounts settled in April</div>
+    <div class="section-badge badge-fail">4 ACTIVE COLLECTIONS</div>
+  </div>
+
+  <div class="callout teal" style="margin-bottom:16px">
+    <strong>April improvement — 3 accounts settled:</strong> White (#214A, $607.46), D'Angelo (#229, $907.72), and Marvan Inc. (#108, $1,155.07) paid in full during April. Total recovered: $2,670.25. Report excludes 0–30 day current balances per board request.
+  </div>
+
+  <div class="grid4" style="margin-bottom:20px">
+    <div class="kpi danger" style="margin-bottom:0">
+      <div class="kpi-label">30+ Day AR Balance</div>
+      <div class="kpi-value">$19,972</div>
+      <div class="kpi-sub">4 accounts · Apr 30, 2026</div>
+    </div>
+    <div class="kpi danger" style="margin-bottom:0">
+      <div class="kpi-label">Active Collections</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">Attorney / lien / formal action</div>
+    </div>
+    <div class="kpi warn" style="margin-bottom:0">
+      <div class="kpi-label">Demand Letter</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">#317 Vahey — escalated from reminder</div>
+    </div>
+    <div class="kpi ok" style="margin-bottom:0">
+      <div class="kpi-label">Settled in April</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">$2,670 recovered · White · D'Angelo · Marvan</div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Active Collection Accounts — April 30, 2026</div>
+
+  <div class="ar-card">
+    <div class="ar-card-header">
+      <div class="ar-addr">#117 — 1550 S. Camino Real · Richard Vega</div>
+      <div class="ar-status atty">3RD PARTY COLLECTIONS</div>
+      <div class="ar-total">$13,535.88</div>
+    </div>
+    <div class="ar-detail">
+      <div class="ar-detail-cell"><div class="ar-detail-label">31–60 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">61–90 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">90+ Days</div><div class="ar-detail-val red">$12,211.10</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">Incl. Special Asmt</div><div class="ar-detail-val red">$950.47</div></div>
+    </div>
+    <div style="padding:8px 14px;font-size:11.5px;color:var(--muted)">Attorney: Guralnick Gilliland Garcia · Sent to 3rd party collections 4/7/2026. 90% of balance aged 90+ days. Includes $950.47 special assessment balance.</div>
+  </div>
+
+  <div class="ar-card">
+    <div class="ar-card-header">
+      <div class="ar-addr">#134 — 1552 S. Camino Real · Kuykendall-Barrett</div>
+      <div class="ar-status hold">ON HOLD</div>
+      <div class="ar-total">$2,812.46</div>
+    </div>
+    <div class="ar-detail">
+      <div class="ar-detail-cell"><div class="ar-detail-label">31–60 Days</div><div class="ar-detail-val">$413.34</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">61–90 Days</div><div class="ar-detail-val">$413.34</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">90+ Days</div><div class="ar-detail-val red">$1,985.78</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">Last Payment</div><div class="ar-detail-val">03-16-2026 · $500</div></div>
+    </div>
+    <div style="padding:8px 14px;font-size:11.5px;color:var(--muted)">Attorney: Archer · File on hold from collection efforts. Board to confirm hold status and next steps with PPM at May 19 meeting.</div>
+  </div>
+
+  <div class="ar-card">
+    <div class="ar-card-header">
+      <div class="ar-addr">#101 — 1500 S. Camino Real · Joseph Scudder</div>
+      <div class="ar-status lien">STANDING STATUS AFTER LIEN</div>
+      <div class="ar-total">$2,299.12</div>
+    </div>
+    <div class="ar-detail">
+      <div class="ar-detail-cell"><div class="ar-detail-label">31–60 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">61–90 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">90+ Days</div><div class="ar-detail-val red">$974.34</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">Last Payment</div><div class="ar-detail-val">03-09-2026 · $1,000</div></div>
+    </div>
+    <div style="padding:8px 14px;font-size:11.5px;color:var(--muted)">Attorney: Guralnick Gilliland Garcia · Lien filed 4/1/2026. Account in standing status post-lien. Balance continues to accrue monthly assessments.</div>
+  </div>
+
+  <div class="ar-card">
+    <div class="ar-card-header">
+      <div class="ar-addr">#317 — 1550 S. Camino Real · Maureen Vahey</div>
+      <div class="ar-status notice">DEMAND LETTER</div>
+      <div class="ar-total">$1,324.78</div>
+    </div>
+    <div class="ar-detail">
+      <div class="ar-detail-cell"><div class="ar-detail-label">31–60 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">61–90 Days</div><div class="ar-detail-val">$662.39</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">90+ Days</div><div class="ar-detail-val">—</div></div>
+      <div class="ar-detail-cell"><div class="ar-detail-label">Last Payment</div><div class="ar-detail-val">12-11-2025 · $662</div></div>
+    </div>
+    <div style="padding:8px 14px;font-size:11.5px;color:var(--muted)">Escalated from reminder notice to demand letter 4/10/2026. No payment since December 2025. Monitor for lien eligibility.</div>
+  </div>
+
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 8px">Settled in April 2026</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Address / Owner</th><th class="r">Amount Recovered</th><th>Paid</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>#214A — Laura White (1510 S. Camino Real)</td><td class="r green">$607.46</td><td>April 22, 2026</td><td><span class="flag ok">SETTLED</span></td></tr>
+        <tr><td>#229 — Joseph S. D'Angelo (1552 S. Camino Real)</td><td class="r green">$907.72</td><td>April 4, 2026</td><td><span class="flag ok">SETTLED</span></td></tr>
+        <tr><td>#108 — Marvan Inc. (1500 S. Camino Real)</td><td class="r green">$1,155.07</td><td>April 9, 2026</td><td><span class="flag ok">SETTLED</span></td></tr>
+        <tr class="total-row"><td>Total Recovered — April 2026</td><td class="r green">$2,670.25</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══ TAB: CAPITAL PROJECTS ════════════════════════════════════════════ -->
+<div id="tab-projects" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">Capital Projects</div>
+    <div class="section-sub">Reserve-funded projects · Status as of March 31, 2026 (April update pending)</div>
+    <div class="section-badge badge-warn">1 ACTIVE</div>
+  </div>
+
+  <div class="callout ok" style="border-color:var(--teal)">
+    <strong>Canyon Floor Carpet Replacement — completed May 1, 2026.</strong> All 4 buildings signed off by Rick Olson. Check prepared and available for Tim Newton to pick up at PPM offices. Project closed within approved $65,262 reserve budget.
+  </div>
+
+  <div class="proj-card">
+    <div>
+      <div class="proj-name">Canyon Floor Carpet Replacement</div>
+      <div class="proj-meta">All 4 buildings · Reserve-funded · <strong style="color:var(--teal)">Completed May 1, 2026</strong> · Sign-off: Rick Olson</div>
+      <div class="proj-fins">
+        <div class="proj-fin"><div class="proj-fin-label">Approved Budget</div><div class="proj-fin-value">$65,262</div></div>
+        <div class="proj-fin"><div class="proj-fin-label">Check Status</div><div class="proj-fin-value">Prepared — Tim Newton pickup at PPM</div></div>
+        <div class="proj-fin"><div class="proj-fin-label">Funding</div><div class="proj-fin-value">Reserve fund</div></div>
+      </div>
+      <div style="margin-top:10px;padding:8px 10px;background:#fdf6e3;border-left:3px solid var(--warn-color);border-radius:4px;font-size:11.5px">
+        <strong style="color:var(--warn-color)">Exception — Unit 322:</strong> Homeowner did not cooperate with installers and raised a complaint regarding the threshold. Board and PPM to follow up. Installation for Unit 322 may be incomplete pending resolution.
+      </div>
+    </div>
+    <div class="proj-badge complete">COMPLETE</div>
+  </div>
+
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Stack Replacement Tracker</div>
+  <div class="card">
+    <div class="card-body">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Drain stack replacement progress — 26 of 92 completed (28%) · All 4 buildings</div>
+      <div class="progress-wrap" style="height:20px">
+        <div class="progress-bar warn" style="width:28%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:4px">
+        <span>0 stacks</span><span style="color:var(--warn-color);font-weight:600">26 complete (28%)</span><span>92 total</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:10px">Stack replacement is a multi-year reserve capital program — <strong>3 stacks per fiscal year · ~$23,000 annual reserve budget</strong>. Best Price Plumbers is the primary contractor. At current pace, 66 remaining stacks will take approximately 22 years to complete. Program is reserve-funded; annual contribution of $21,000 established in the SCT reserve study. YTD reserve expenditures of $150,813 (GL 2320) reflect ongoing stack work. Note: a portion of GL 5335 operating charges represent stack-related work initially coded to operating — these are being recoded to reserve accounts (see reserve reclassification detail in Budget vs Actual tab).</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ TAB: MANAGEMENT REPORT ═══════════════════════════════════════════ -->
+<div id="tab-mgmt" class="tab-pane section" style="display:none">
+  <div class="section-header">
+    <div class="section-title">April 2026 Management Report Summary</div>
+    <div class="section-sub">PPM · Personalized Property Management · Caren Oliva · Compiled May 3, 2026</div>
+    <div class="section-badge badge-info">PPM REPORT</div>
+  </div>
+
+  <!-- Collections -->
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Collections Report</div>
+  <div class="card" style="margin-bottom:20px">
+    <table class="tbl">
+      <thead><tr><th>Unit / Owner</th><th>Attorney</th><th>Status</th><th class="r">Balance</th></tr></thead>
+      <tbody>
+        <tr><td>#117 — Vega</td><td>Guralnick Gilliland Garcia</td><td><span class="flag fail">PREP DOCS FOR ATTORNEY</span></td><td class="r red">$17,753.70</td></tr>
+        <tr><td>#134 — Kuykendall-Barrett</td><td>Archer</td><td><span class="flag warn">ON HOLD</span></td><td class="r amber">$5,190.53</td></tr>
+        <tr><td>#101 — Scudder</td><td>Guralnick Gilliland Garcia</td><td><span class="flag fail">LIEN FILED</span></td><td class="r red">$4,442.67</td></tr>
+        <tr><td colspan="3" style="color:var(--muted);font-size:11.5px;font-style:italic">2 accounts — Demand Letters issued (names not specified in report)</td><td class="r">—</td></tr>
+        <tr><td colspan="3" style="color:var(--teal);font-size:11.5px;font-style:italic">3 accounts — Settled (closed during period)</td><td class="r green">CLOSED</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ARC -->
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Architectural Review (ARC)</div>
+  <div class="card" style="margin-bottom:20px">
+    <table class="tbl">
+      <thead><tr><th>Unit / Owner</th><th>Request</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>#330 — Shawn Baeshlin</td><td>Interior renovation (scope pending additional information)</td><td><span class="flag warn">PENDING INFO</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Ownership Transfer -->
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Ownership Transfers</div>
+  <div class="card" style="margin-bottom:20px">
+    <table class="tbl">
+      <thead><tr><th>Unit</th><th>Prior Owner</th><th>New Owner</th><th>Effective</th></tr></thead>
+      <tbody>
+        <tr><td>#330 — 1550 S. Camino Real</td><td>John Shaw</td><td>Shawn Baeshlin</td><td>April 1, 2026</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:8px 14px;font-size:11.5px;color:var(--muted)">Transfer processed April 1, 2026. Unit #330 is also the pending ARC request above — new owner submitting renovation request.</div>
+  </div>
+
+  <!-- Work Orders -->
+  <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Work Order Summary — April 2026</div>
+  <div class="grid2" style="margin-bottom:8px">
+    <div class="kpi warn" style="margin-bottom:0">
+      <div class="kpi-label">Total Work Orders</div>
+      <div class="kpi-value">32</div>
+    </div>
+    <div class="kpi ok" style="margin-bottom:0">
+      <div class="kpi-label">Completed</div>
+      <div class="kpi-value">19</div>
+      <div class="kpi-sub">13 open / in progress</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-body">
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Notable Open Items</div>
+      <div class="wo-row">
+        <div class="wo-unit">#104</div>
+        <div class="wo-desc">Water leak — active investigation / repair in progress</div>
+        <div class="wo-status open">OPEN</div>
+      </div>
+      <div class="wo-row">
+        <div class="wo-unit">1500</div>
+        <div class="wo-desc">Laundry room water damage — related to CSC CoinMach washer issue; vendor coordination required</div>
+        <div class="wo-status open">OPEN</div>
+      </div>
+      <div class="wo-row">
+        <div class="wo-unit">Common</div>
+        <div class="wo-desc">Chiller repairs — completed May 1, 2026 (Desert Air) · Will appear in May financials</div>
+        <div class="wo-status done">COMPLETE</div>
+      </div>
+      <div class="wo-row">
+        <div class="wo-unit">Hot Tub</div>
+        <div class="wo-desc">Thermistor replacement — completed · Cost: $307.45</div>
+        <div class="wo-status done">COMPLETE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <strong>Laundry room / CSC CoinMach note:</strong> Water damage at 1500 laundry room traced to CoinMach equipment. Coordinate with CSC CoinMach for repair responsibility and reimbursement. This may explain part of the laundry commission revenue shortfall (GL 4131 — $2,705 under YTD budget).
+  </div>
+
+  <div class="callout ok" style="margin-top:8px;border-color:var(--teal)">
+    <strong>Chiller repairs complete (Desert Air · May 1, 2026):</strong> Chillers repaired and operational. Work order dated 4/27/2026 — completed May 1. Cost will appear in May financials. Board to confirm final invoice amount with PPM.
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <span>PSB III Enhanced Board Package · April 2026 · DRAFT</span>
+  <span>Prepared by Jeffrey Jerome · Confidential — Board Use Only · Data not final pending PPM confirmation</span>
+</div>
+
+</div><!-- /main-content -->
+
+<script>
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => { p.style.display='none'; p.classList.remove('active'); });
+  btn.classList.add('active');
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.classList.add('active');
+}
+
+const PASS_HASH = '6f46be4ee1fe40c93dd4d003df2eee923f656125460ff5d37a1319e7c753580c';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPass() {
+  const val = document.getElementById('lock-input').value;
+  const hash = await sha256(val);
+  if (hash === PASS_HASH) {
+    sessionStorage.setItem('psb3_draft_auth', '1');
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('lock-error').textContent = 'Incorrect passphrase — try again.';
+    document.getElementById('lock-input').value = '';
+    document.getElementById('lock-input').focus();
+  }
+}
+
+document.getElementById('lock-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPass();
+});
+
+if (sessionStorage.getItem('psb3_draft_auth') === '1') {
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+}
+</script>
+</body>
+</html>
