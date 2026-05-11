@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumen — Your Personal Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0f0e0c;
+  --paper: #f7f5f0;
+  --warm: #f0ece4;
+  --surface: #ffffff;
+  --border: rgba(15,14,12,0.10);
+  --border-md: rgba(15,14,12,0.18);
+  --muted: #7a7570;
+  --accent: #c84b2f;
+  --teal: #1d7d6a;
+  --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+html, body { height: 100%; font-family: var(--font); background: var(--paper); color: var(--ink); }
+#lock-screen {
+  position: fixed; inset: 0;
+  background: #0f0e0c;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.lock-box {
+  background: #1a1917;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 44px 48px 40px;
+  width: 340px;
+  text-align: center;
+}
+.lock-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; margin-bottom: 22px; }
+.lock-title { font-size: 19px; font-weight: 600; color: #f7f5f0; margin-bottom: 4px; }
+.lock-sub { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 30px; line-height: 1.5; }
+.pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.12); transition: background .15s; }
+.pin-dot.filled { background: var(--accent); }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.pin-key { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #f7f5f0; font-family: var(--font); font-size: 20px; font-weight: 500; padding: 14px 0; cursor: pointer; transition: background .12s; user-select: none; }
+.pin-key:active, .pin-key:hover { background: rgba(255,255,255,0.13); }
+.pin-key.del { font-size: 15px; color: rgba(255,255,255,0.5); }
+.lock-error { font-size: 12px; color: #e07060; min-height: 18px; margin-top: 2px; }
+#app { display: none; flex-direction: column; height: 100vh; max-width: 760px; margin: 0 auto; background: var(--surface); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.app-header { padding: 16px 24px 13px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.wordmark { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.wdot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.wordmark-sub { font-size: 11px; font-weight: 400; color: var(--muted); }
+.tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--warm); }
+.tab-btn { flex: 1; background: none; border: none; padding: 12px 16px; font-family: var(--font); font-size: 13.5px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--surface); }
+#tab-chat { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.msg { max-width: 88%; padding: 12px 16px; border-radius: 14px; font-size: 14.5px; line-height: 1.65; }
+.msg.lumen { background: var(--warm); border-bottom-left-radius: 4px; align-self: flex-start; }
+.msg.user  { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+.msg-sender { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.msg.user .msg-sender { color: rgba(255,255,255,0.6); }
+.typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+.tdot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1.2s infinite; }
+.tdot:nth-child(2) { animation-delay: .2s; }
+.tdot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+.search-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 6px; }
+.chat-input-wrap { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; background: var(--surface); }
+.chat-input { flex: 1; resize: none; border: 1.5px solid var(--border-md); border-radius: 10px; padding: 10px 14px; font-family: var(--font); font-size: 14.5px; line-height: 1.5; color: var(--ink); background: var(--surface); outline: none; max-height: 120px; transition: border-color .15s; }
+.chat-input:focus { border-color: var(--accent); }
+.chat-input::placeholder { color: var(--muted); }
+.send-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+.send-btn:hover { background: #b03f26; }
+.send-btn:disabled { background: var(--border-md); cursor: default; }
+#tab-journal { flex: 1; overflow-y: auto; padding: 24px; display: none; flex-direction: column; gap: 24px; }
+#tab-journal.active { display: flex; }
+.j-intro { background: var(--warm); border-radius: 12px; padding: 20px 22px; }
+.j-intro h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.j-intro p { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+.j-intro p + p { margin-top: 6px; }
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.prompts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.prompt-chip { background: var(--warm); border: 1px solid var(--border-md); border-radius: 8px; padding: 9px 12px; font-size: 12.5px; color: var(--ink); cursor: pointer; text-align: left; font-family: var(--font); line-height: 1.4; transition: background .12s, border-color .12s; }
+.prompt-chip:hover { background: #e8e2d6; border-color: rgba(15,14,12,0.28); }
+.j-editor { border: 1.5px solid var(--border-md); border-radius: 12px; overflow: hidden; }
+.editor-title-wrap { border-bottom: 1px solid var(--border); padding: 12px 16px; }
+.editor-title { width: 100%; border: none; outline: none; font-family: var(--font); font-size: 15px; font-weight: 600; color: var(--ink); background: transparent; }
+.editor-title::placeholder { color: var(--muted); font-weight: 400; }
+.editor-body { width: 100%; min-height: 160px; border: none; outline: none; padding: 14px 16px; font-family: var(--font); font-size: 14px; color: var(--ink); background: transparent; resize: vertical; line-height: 1.7; }
+.editor-body::placeholder { color: var(--muted); }
+.editor-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: 1px solid var(--border); background: var(--warm); }
+.editor-meta { font-size: 11.5px; color: var(--muted); }
+.save-btn { background: var(--teal); color: #fff; border: none; border-radius: 7px; padding: 8px 18px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
+.save-btn:hover { background: #186657; }
+.save-btn:disabled { background: var(--muted); cursor: default; }
+.entries-list { display: flex; flex-direction: column; gap: 10px; }
+.entry-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.entry-header { display: flex; align-items: baseline; justify-content: space-between; padding: 11px 14px; background: var(--warm); gap: 12px; }
+.entry-title { font-size: 13.5px; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entry-date { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.entry-del { background: none; border: none; font-size: 13px; color: var(--muted); cursor: pointer; opacity: .6; flex-shrink: 0; transition: opacity .15s, color .15s; }
+.entry-del:hover { opacity: 1; color: var(--accent); }
+.entry-body { padding: 11px 14px; font-size: 13.5px; line-height: 1.7; white-space: pre-wrap; max-height: 180px; overflow: hidden; }
+.entry-body.expanded { max-height: none; }
+.entry-more { padding: 4px 14px 10px; font-size: 12px; color: var(--muted); cursor: pointer; background: none; border: none; font-family: var(--font); }
+.entry-more:hover { color: var(--ink); }
+.empty-state { text-align: center; padding: 32px 24px; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+@media (max-width: 520px) {
+  .prompts-grid { grid-template-columns: 1fr; }
+  .lock-box { width: 92vw; padding: 36px 28px 30px; }
+  .chat-messages, #tab-journal { padding: 16px 18px; }
+  .chat-input-wrap { padding: 12px 18px; }
+  .app-header { padding: 14px 18px 12px; }
+}
+</style>
+</head>
+<body>
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-dot"></div>
+    <div class="lock-title">Good to see you, Jeannine</div>
+    <div class="lock-sub">Enter your PIN to continue</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key del" onclick="pinClear()">✕</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
+<div id="app">
+  <div class="app-header">
+    <div class="wordmark"><div class="wdot"></div>Lumen<span class="wordmark-sub">Your personal companion</span></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="btn-chat" onclick="switchTab('chat')">Ask Lumen</button>
+    <button class="tab-btn" id="btn-journal" onclick="switchTab('journal')">My Journal</button>
+  </div>
+  <div id="tab-chat">
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg lumen"><div class="msg-sender">Lumen</div>Hi Jeannine — I'm here for you. Ask me anything: about your treatment, what a side effect means, how to talk to your doctor, what questions to bring to your next appointment, or honestly just how you're feeling today. No wrong questions here.</div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask anything…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="10" x2="16" y2="10"/><polyline points="10 4 16 10 10 16"/></svg></button>
+    </div>
+  </div>
+  <div id="tab-journal">
+    <div class="j-intro"><h2>Your private space</h2><p>Chemo brain is real — the fog, the forgetfulness, the way words slip away just when you need them. Writing, even a few lines, can help you hold onto what matters.</p><p>Your entries live only on this device and are never shared with anyone. Write freely.</p></div>
+    <div><div class="section-label">Need a starting point? Tap any prompt.</div><div class="prompts-grid" id="prompts-grid"></div></div>
+    <div class="j-editor">
+      <div class="editor-title-wrap"><input type="text" class="editor-title" id="editor-title" placeholder="Title (optional)" maxlength="120"></div>
+      <textarea class="editor-body" id="editor-body" placeholder="Write freely — this is just for you…"></textarea>
+      <div class="editor-footer"><span class="editor-meta" id="editor-meta">Start writing above</span><button class="save-btn" id="save-btn" onclick="saveEntry()" disabled>Save entry</button></div>
+    </div>
+    <div><div class="section-label">Past entries</div><div class="entries-list" id="entries-list"></div></div>
+  </div>
+</div>
+<script>
+const CORRECT_HASH = '2f1987bf98c09d2f5d2a23a6ae29fa53b9aec8f07ed1330bd439122f5a1a2c2c';
+const SESSION_KEY  = 'lumen_authed';
+let pinBuffer = '', pinHash = '';
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function updateDots() {
+  for (let i = 0; i < 4; i++) document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
+}
+function pinKey(d) {
+  if (pinBuffer.length >= 4) return;
+  document.getElementById('lock-error').textContent = '';
+  pinBuffer += d; updateDots();
+  if (pinBuffer.length === 4) checkPin();
+}
+function pinDel() { pinBuffer = pinBuffer.slice(0,-1); updateDots(); }
+function pinClear() { pinBuffer = ''; updateDots(); }
+async function checkPin() {
+  const h = await sha256(pinBuffer);
+  if (h === CORRECT_HASH) {
+    pinHash = h;
+    sessionStorage.setItem(SESSION_KEY,'1');
+    document.getElementById('lock-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+  } else {
+    document.getElementById('lock-error').textContent='Incorrect PIN — try again.';
+    pinBuffer=''; updateDots();
+  }
+}
+if (sessionStorage.getItem(SESSION_KEY)==='1') {
+  sha256('1030').then(h => { pinHash=h; });
+  document.getElementById('lock-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+function switchTab(tab) {
+  document.getElementById('btn-chat').classList.toggle('active',tab==='chat');
+  document.getElementById('btn-journal').classList.toggle('active',tab==='journal');
+  document.getElementById('tab-chat').style.display=tab==='chat'?'flex':'none';
+  document.getElementById('tab-journal').classList.toggle('active',tab==='journal');
+}
+const history=[];
+let busy=false;
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function addMsg(role,text,searchUsed){
+  const wrap=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='msg '+(role==='user'?'user':'lumen');
+  const sender=document.createElement('div');sender.className='msg-sender';sender.textContent=role==='user'?'You':'Lumen';div.appendChild(sender);
+  const body=document.createElement('div');body.textContent=text;div.appendChild(body);
+  if(searchUsed){const note=document.createElement('div');note.className='search-note';note.textContent='🔍 Searched the web for current information';div.appendChild(note);}
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+function showTyping(){
+  const wrap=document.getElementById('chat-messages');
+  const div=document.createElement('div');div.className='msg lumen';div.id='typing';
+  div.innerHTML='<div class="msg-sender">Lumen</div><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+async function sendMessage(){
+  if(busy)return;
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();if(!text)return;
+  input.value='';input.style.height='auto';
+  document.getElementById('send-btn').disabled=true;
+  busy=true;
+  addMsg('user',text);
+  history.push({role:'user',content:text});
+  showTyping();
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-pin-hash':pinHash},
+      body:JSON.stringify({messages:history}),
+    });
+    const data=await res.json();
+    document.getElementById('typing')?.remove();
+    if(!res.ok) throw new Error(data.error||`Error ${res.status}`);
+    addMsg('lumen',data.reply,data.searchUsed);
+    history.push({role:'assistant',content:data.reply});
+  }catch(err){
+    document.getElementById('typing')?.remove();
+    addMsg('lumen','Something went wrong — please try again. ('+err.message+')');
+  }finally{
+    busy=false;
+    document.getElementById('send-btn').disabled=false;
+    document.getElementById('chat-input').focus();
+  }
+}
+const PROMPTS=[
+  'How am I really feeling today — body and spirit?',
+  'What am I most grateful for right now?',
+  'Something that made me smile or laugh today.',
+  'What do I want my grandkids to know about this time?',
+  'How did my body feel today — any changes I noticed?',
+  'What am I most worried about, and can I do anything about it?',
+  'Something kind someone did for me.',
+  'What would feel good to do tomorrow, even something small?',
+  'A memory I want to hold onto.',
+  "What I wish people understood about what I'm going through.",
+  'Something I\'m proud of myself for handling.',
+  'What I noticed in the garden (or outside) today.',
+  'A question I want to ask my doctor at my next appointment.',
+  'A letter to myself — what do I need to hear right now?',
+];
+(function renderPrompts(){
+  const grid=document.getElementById('prompts-grid');
+  PROMPTS.forEach(p=>{
+    const btn=document.createElement('button');btn.className='prompt-chip';btn.textContent=p;
+    btn.onclick=()=>{const t=document.getElementById('editor-title');if(!t.value)t.value=p;document.getElementById('editor-body').focus();updateEditorMeta();};
+    grid.appendChild(btn);
+  });
+})();
+const JKEY='lumen_journal_v1';
+function jLoad(){try{return JSON.parse(localStorage.getItem(JKEY)||'[]');}catch{return [];}}
+function jSave(arr){localStorage.setItem(JKEY,JSON.stringify(arr));}
+function updateEditorMeta(){
+  const n=document.getElementById('editor-body').value.length;
+  document.getElementById('editor-meta').textContent=n?`${n} character${n===1?'':'s'}`:'Start writing above';
+  document.getElementById('save-btn').disabled=!document.getElementById('editor-body').value.trim();
+}
+document.getElementById('editor-body').addEventListener('input',updateEditorMeta);
+document.getElementById('editor-title').addEventListener('input',updateEditorMeta);
+function saveEntry(){
+  const title=document.getElementById('editor-title').value.trim();
+  const body=document.getElementById('editor-body').value.trim();
+  if(!body)return;
+  const arr=jLoad();
+  arr.unshift({id:Date.now(),title:title||'Untitled entry',body,date:new Date().toISOString()});
+  jSave(arr);
+  document.getElementById('editor-title').value='';
+  document.getElementById('editor-body').value='';
+  updateEditorMeta();renderEntries();
+}
+function deleteEntry(id){
+  if(!confirm('Delete this entry? This can\'t be undone.'))return;
+  jSave(jLoad().filter(e=>e.id!==id));renderEntries();
+}
+function fmtDate(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderEntries(){
+  const list=document.getElementById('entries-list');
+  const arr=jLoad();
+  list.innerHTML='';
+  if(!arr.length){list.innerHTML='<div class="empty-state">Your entries will appear here.<br>Everything you write stays private on this device.</div>';return;}
+  arr.forEach(entry=>{
+    const card=document.createElement('div');card.className='entry-card';
+    card.innerHTML=`<div class="entry-header"><div class="entry-title">${esc(entry.title)}</div><div class="entry-date">${fmtDate(entry.date)}</div><button class="entry-del" title="Delete">✕</button></div><div class="entry-body">${esc(entry.body)}</div>`;
+    card.querySelector('.entry-del').onclick=()=>deleteEntry(entry.id);
+    const body=card.querySelector('.entry-body');
+    if(entry.body.length>280){const btn=document.createElement('button');btn.className='entry-more';btn.textContent='Show more…';btn.onclick=()=>{body.classList.toggle('expanded');btn.textContent=body.classList.contains('expanded')?'Show less':'Show more…';};card.appendChild(btn);}
+    list.appendChild(card);
+  });
+}
+renderEntries();
+</script>
+</body>
+</html>

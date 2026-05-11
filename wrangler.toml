@@ -1,0 +1,11 @@
+name = "think-lumen-landing"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "./"
+binding = "ASSETS"
+
+# Secrets — set once in Cloudflare dashboard → Settings → Variables & Secrets:
+#   ANTHROPIC_API_KEY  = your Anthropic key
+#   APP_PIN_HASH       = sha256("1030") = 2f1987bf98c09d2f5d2a23a6ae29fa53b9aec8f07ed1330bd439122f5a1a2c2c
