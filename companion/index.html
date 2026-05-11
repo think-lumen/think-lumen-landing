@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumen — Your Personal Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0f0e0c;
+  --paper: #f7f5f0;
+  --warm: #f0ece4;
+  --surface: #ffffff;
+  --border: rgba(15,14,12,0.10);
+  --border-md: rgba(15,14,12,0.18);
+  --muted: #7a7570;
+  --accent: #c84b2f;
+  --teal: #1d7d6a;
+  --sage: #4a7c5f;
+  --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'DM Mono', 'Fira Mono', monospace;
+}
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Layout ──────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.app-header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.wordmark {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wordmark-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.wordmark-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--warm);
+}
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s;
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--surface);
+}
+
+/* ── Chat Tab ─────────────────────────────────────── */
+#tab-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.msg {
+  max-width: 88%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+.msg.lumen {
+  background: var(--warm);
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  color: var(--ink);
+}
+.msg.user {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+.msg-sender {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.msg.user .msg-sender { color: rgba(255,255,255,0.65); }
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 14px 16px;
+}
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: bounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+.chat-input-wrap {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.chat-input {
+  flex: 1;
+  resize: none;
+  border: 1.5px solid var(--border-md);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  max-height: 120px;
+  transition: border-color .15s;
+}
+.chat-input:focus { border-color: var(--accent); }
+.chat-input::placeholder { color: var(--muted); }
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.send-btn:hover { background: #b03f26; }
+.send-btn:disabled { background: var(--border-md); cursor: default; }
+.send-btn svg { width: 18px; height: 18px; }
+.api-notice {
+  background: #fdf6e3;
+  border-top: 1px solid #e8d89a;
+  padding: 8px 24px;
+  font-size: 11.5px;
+  color: #8a6d20;
+  text-align: center;
+}
+
+/* ── Journal Tab ──────────────────────────────────── */
+#tab-journal {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+}
+#tab-journal.active { display: flex; }
+.journal-intro {
+  background: var(--warm);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.journal-intro h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.journal-intro p {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.journal-intro p + p { margin-top: 6px; }
+
+/* prompts */
+.prompts-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.prompts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.prompt-chip {
+  background: var(--warm);
+  border: 1px solid var(--border-md);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+  line-height: 1.4;
+  transition: background .12s, border-color .12s;
+}
+.prompt-chip:hover {
+  background: #e8e2d6;
+  border-color: rgba(15,14,12,0.28);
+}
+
+/* editor */
+.journal-editor {
+  border: 1.5px solid var(--border-md);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.editor-title-wrap {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+}
+.editor-title {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  background: transparent;
+}
+.editor-title::placeholder { color: var(--muted); font-weight: 400; }
+.editor-body {
+  width: 100%;
+  min-height: 160px;
+  border: none;
+  outline: none;
+  padding: 14px 16px;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  resize: vertical;
+  line-height: 1.7;
+}
+.editor-body::placeholder { color: var(--muted); }
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--warm);
+}
+.editor-meta {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.save-btn {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 18px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.save-btn:hover { background: #186657; }
+.save-btn:disabled { background: var(--muted); cursor: default; }
+
+/* entries */
+.entries-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.entry-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.entry-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--warm);
+  gap: 12px;
+}
+.entry-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.entry-date {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+.entry-delete {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity .15s, color .15s;
+}
+.entry-delete:hover { opacity: 1; color: var(--accent); }
+.entry-body {
+  padding: 11px 14px;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+.entry-body.expanded { max-height: none; }
+.entry-expand {
+  padding: 6px 14px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  text-align: left;
+}
+.entry-expand:hover { color: var(--ink); }
+.empty-state {
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 520px) {
+  .prompts-grid { grid-template-columns: 1fr; }
+  .app-header { padding: 14px 18px 12px; }
+  .chat-messages, #tab-journal { padding: 16px 18px; }
+  .chat-input-wrap { padding: 12px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="wordmark">
+      <div class="wordmark-dot"></div>
+      Lumen
+      <span class="wordmark-sub">Your personal companion</span>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="btn-chat" onclick="switchTab('chat')">Ask Lumen</button>
+    <button class="tab-btn" id="btn-journal" onclick="switchTab('journal')">My Journal</button>
+  </div>
+
+  <!-- ── CHAT TAB ── -->
+  <div id="tab-chat">
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg lumen">
+        <div class="msg-sender">Lumen</div>
+        Hi — I'm Lumen, and I'm here just for you. You can ask me anything: about your treatment, what a side effect means, how to talk to your doctor, or honestly just how you're feeling today. There are no wrong questions here.
+      </div>
+    </div>
+
+    <div class="api-notice" id="api-notice" style="display:none">
+      ⚠ Add your Anthropic API key in the script below to enable Ask Lumen.
+    </div>
+
+    <div class="chat-input-wrap">
+      <textarea
+        class="chat-input"
+        id="chat-input"
+        rows="1"
+        placeholder="Ask anything…"
+        onkeydown="handleChatKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="10" x2="16" y2="10"/>
+          <polyline points="10 4 16 10 10 16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── JOURNAL TAB ── -->
+  <div id="tab-journal">
+
+    <!-- Intro -->
+    <div class="journal-intro">
+      <h2>Your private space</h2>
+      <p>Chemo brain is real — the fog, the forgetfulness, the way words slip away. Writing, even just a few lines, can help you hold onto what matters. Your entries are saved only on this device and never shared with anyone.</p>
+      <p>There's no right way to use this journal. Write what you feel, what you notice, what you want to remember.</p>
+    </div>
+
+    <!-- Prompts -->
+    <div>
+      <div class="prompts-label">Need a starting point? Tap any prompt.</div>
+      <div class="prompts-grid" id="prompts-grid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="journal-editor">
+      <div class="editor-title-wrap">
+        <input
+          type="text"
+          class="editor-title"
+          id="editor-title"
+          placeholder="Title (optional)"
+          maxlength="120"
+        >
+      </div>
+      <textarea
+        class="editor-body"
+        id="editor-body"
+        placeholder="Write freely — this is just for you…"
+      ></textarea>
+      <div class="editor-footer">
+        <span class="editor-meta" id="editor-meta">Start writing above</span>
+        <button class="save-btn" id="save-btn" onclick="saveEntry()" disabled>Save entry</button>
+      </div>
+    </div>
+
+    <!-- Past entries -->
+    <div id="entries-section">
+      <div class="entries-label">Past entries</div>
+      <div class="entries-list" id="entries-list">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+  </div><!-- /tab-journal -->
+</div><!-- /app -->
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────
+// Replace with your Anthropic API key, or leave empty to show the notice.
+// For production: proxy through a Cloudflare Worker so the key is never exposed.
+const ANTHROPIC_API_KEY = '';
+
+const SYSTEM_PROMPT = `You are Lumen, a warm and knowledgeable personal health companion. You are supporting a woman named Jeannine who is living with Stage IB breast cancer. She is on Medicare and may be navigating treatment, side effects, medical appointments, and the emotional weight that comes with a cancer diagnosis.
+
+Your role:
+- Answer her questions about her condition, treatment options, side effects, and medications with accuracy and compassion
+- Help her prepare for doctor's appointments (what to ask, what to bring)
+- Explain medical terms in plain, clear language
+- Offer emotional support and normalize what she's feeling
+- Help her communicate with family members about her diagnosis and needs
+- Suggest practical strategies for managing chemo brain, fatigue, and other side effects
+
+Tone: warm, calm, unhurried, and honest. You are a knowledgeable friend — not a clinical bot. Never dismiss her concerns. Never catastrophize. If something is outside your knowledge, say so clearly and encourage her to speak with her care team.
+
+Important: You are not a substitute for her medical team. Always encourage her to discuss treatment decisions with her oncologist.`;
+
+// ── Tab switching ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('btn-chat').classList.toggle('active', tab === 'chat');
+  document.getElementById('btn-journal').classList.toggle('active', tab === 'journal');
+  document.getElementById('tab-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+  document.getElementById('tab-journal').classList.toggle('active', tab === 'journal');
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────
+const conversationHistory = [];
+let isThinking = false;
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function appendMessage(role, text) {
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'user' : 'lumen');
+
+  const sender = document.createElement('div');
+  sender.className = 'msg-sender';
+  sender.textContent = role === 'user' ? 'You' : 'Lumen';
+  div.appendChild(sender);
+
+  const content = document.createElement('div');
+  content.textContent = text;
+  div.appendChild(content);
+
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return content;
+}
+
+function showTyping() {
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg lumen';
+  div.id = 'typing-indicator';
+  const ind = document.createElement('div');
+  ind.className = 'typing-indicator';
+  ind.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(ind);
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  if (isThinking) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!ANTHROPIC_API_KEY) {
+    document.getElementById('api-notice').style.display = 'block';
+    return;
+  }
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+  isThinking = true;
+
+  appendMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '(no response)';
+
+    removeTyping();
+    appendMessage('lumen', reply);
+    conversationHistory.push({ role: 'assistant', content: reply });
+  } catch (err) {
+    removeTyping();
+    appendMessage('lumen', 'Something went wrong — please try again. (' + err.message + ')');
+  } finally {
+    isThinking = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('chat-input').focus();
+  }
+}
+
+// ── Journal: prompts ──────────────────────────────────────────────────
+const PROMPTS = [
+  'How am I really feeling today — body and spirit?',
+  'What am I most grateful for right now?',
+  'Something that made me smile or laugh today.',
+  'What do I want my grandkids to know about this time?',
+  'How did my body feel today — any changes I noticed?',
+  'What am I most worried about, and is there anything I can do about it?',
+  'Something kind someone did for me.',
+  'What would feel good to do tomorrow, even something small?',
+  'A memory I want to hold onto.',
+  'What I wish people understood about what I\'m going through.',
+  'Something I\'m proud of myself for handling.',
+  'What I noticed in the garden (or outside) today.',
+  'A question I want to ask my doctor at my next appointment.',
+  'A letter to myself — what do I need to hear right now?',
+];
+
+function renderPrompts() {
+  const grid = document.getElementById('prompts-grid');
+  PROMPTS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'prompt-chip';
+    btn.textContent = p;
+    btn.onclick = () => usePrompt(p);
+    grid.appendChild(btn);
+  });
+}
+
+function usePrompt(text) {
+  const titleEl = document.getElementById('editor-title');
+  if (!titleEl.value) titleEl.value = text;
+  document.getElementById('editor-body').focus();
+  updateSaveState();
+  document.getElementById('journal-editor') && document.getElementById('journal-editor').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Journal: editor ───────────────────────────────────────────────────
+function updateSaveState() {
+  const hasContent = document.getElementById('editor-body').value.trim().length > 0;
+  document.getElementById('save-btn').disabled = !hasContent;
+  const chars = document.getElementById('editor-body').value.length;
+  document.getElementById('editor-meta').textContent = chars > 0
+    ? `${chars} character${chars === 1 ? '' : 's'}`
+    : 'Start writing above';
+}
+
+document.getElementById('editor-body').addEventListener('input', updateSaveState);
+document.getElementById('editor-title').addEventListener('input', updateSaveState);
+
+// ── Journal: storage ──────────────────────────────────────────────────
+const STORAGE_KEY = 'lumen_journal_v1';
+
+function loadEntries() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveEntries(entries) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+function saveEntry() {
+  const title = document.getElementById('editor-title').value.trim();
+  const body = document.getElementById('editor-body').value.trim();
+  if (!body) return;
+
+  const entries = loadEntries();
+  entries.unshift({
+    id: Date.now(),
+    title: title || 'Untitled entry',
+    body,
+    date: new Date().toISOString(),
+  });
+  saveEntries(entries);
+
+  document.getElementById('editor-title').value = '';
+  document.getElementById('editor-body').value = '';
+  updateSaveState();
+
+  renderEntries();
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this entry? This can\'t be undone.')) return;
+  const entries = loadEntries().filter(e => e.id !== id);
+  saveEntries(entries);
+  renderEntries();
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' · '
+    + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function renderEntries() {
+  const entries = loadEntries();
+  const list = document.getElementById('entries-list');
+  list.innerHTML = '';
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state">Your entries will appear here.<br>Everything you write stays private on this device.</div>';
+    return;
+  }
+
+  entries.forEach(entry => {
+    const card = document.createElement('div');
+    card.className = 'entry-card';
+
+    const header = document.createElement('div');
+    header.className = 'entry-header';
+    header.innerHTML = `
+      <div class="entry-title">${escHtml(entry.title)}</div>
+      <div class="entry-date">${formatDate(entry.date)}</div>
+      <button class="entry-delete" onclick="deleteEntry(${entry.id})" title="Delete entry">✕</button>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'entry-body';
+    body.textContent = entry.body;
+
+    card.appendChild(header);
+    card.appendChild(body);
+
+    // Show expand button if content is long
+    if (entry.body.length > 300) {
+      const expandBtn = document.createElement('button');
+      expandBtn.className = 'entry-expand';
+      expandBtn.textContent = 'Show more…';
+      expandBtn.onclick = () => {
+        body.classList.toggle('expanded');
+        expandBtn.textContent = body.classList.contains('expanded') ? 'Show less' : 'Show more…';
+      };
+      card.appendChild(expandBtn);
+    }
+
+    list.appendChild(card);
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+renderPrompts();
+renderEntries();
+
+if (!ANTHROPIC_API_KEY) {
+  // Show notice only when user tries to send, not on load
+}
+
+// Initial tab state
+document.getElementById('tab-chat').style.display = 'flex';
+</script>
+</body>
+</html>
